@@ -58,12 +58,12 @@ function About() {
         {/* Your about content goes here */}
         <div ref={contentRef} className="content h-[85vh] w-[95%] bg-[#edede9] flex items-center">
             <div className="image h-156 w-1/2 m-8">
-                <img className='h-full w-[70%] object-cover' src="https://res.cloudinary.com/dsjjdnife/image/upload/v1755711983/load2_z4atye" alt="" />
+                <img className='h-full w-[70%] object-cover' src="https://i.pinimg.com/1200x/5d/c0/12/5dc0126ea6604d35b63de174adf4ab1b.jpg" alt="" />
             </div>
             <div className="te w-1/2 m-8 self-start mt-26">
                 <h1 className='text-7xl font-bold mb-4 w-ful text-center '>About Me</h1>
                 <p className='text-2xl mt-6 leading-relaxed'>
-                    I'm Rohit Kumar, a passionate web developer with expertise in creating dynamic and responsive web applications. With a strong foundation in JavaScript, React, and Node.js, I enjoy building user-friendly interfaces and seamless backend systems. My goal is to deliver high-quality code and innovative solutions that enhance user experiences.
+                    I'm Rohit Kumar, a passionate web developer with expertise in creating dynamic and responsive web applications. With a strong foundation in JavaScript, React, and Node.js, I enjoy building user-friendly interfaces and seamless backend systems.
                 </p>
             </div>
         </div>

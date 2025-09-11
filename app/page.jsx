@@ -3,130 +3,9 @@
 
 import { motion, useMotionValue } from 'framer-motion';
 import { useEffect, useRef, useState, Suspense } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { createPortal } from 'react-dom';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Html, Center, Environment, ContactShadows } from '@react-three/drei';
-
-// Small overlay canvas that loads the GLB model from public folder
-function ModelScene() {
-  const gltf = useGLTF('/RaW..glb');
-  console.log('GLTF loaded:', !!gltf, gltf && gltf.scene && gltf.scene.children.length);
-
-  // Ensure meshes aren't frustum-culled and are visible; enable shadows and reflectivity
-  if (gltf && gltf.scene) {
-    gltf.scene.traverse((child) => {
-      if (child.isMesh) {
-        child.frustumCulled = false;
-        child.castShadow = true;
-        child.receiveShadow = true;
-        if (child.material) {
-          child.material.metalness = Math.max(0, child.material.metalness ?? 0.5);
-          child.material.roughness = Math.min(1, child.material.roughness ?? 0.35);
-          if ('envMapIntensity' in child.material) {
-            child.material.envMapIntensity = Math.max(1, child.material.envMapIntensity ?? 1.5);
-          }
-        }
-      }
-    });
-  }
-
- 
-  const groupRef = useRef();
-  const targetRot = useRef({ x: 0, y: 0 });
-
-  // mousemove updates the target rotation (normalized -1..1)
-  useEffect(() => {
-    const onMove = (e) => {
-      const nx = (e.clientX / window.innerWidth - 0.5) * 2; // -1 .. 1
-      const ny = (e.clientY / window.innerHeight - 0.5) * 2; // -1 .. 1
-  const maxX = 0.22; // tilt up/down (radians) - increased for stronger follow
-  const maxY = 0.15; // rotate left/right - increased for stronger follow
-      targetRot.current.x = -ny * maxX; // invert so moving up tilts down slightly
-      targetRot.current.y = nx * maxY;
-    };
-    window.addEventListener('mousemove', onMove, { passive: true });
-    return () => window.removeEventListener('mousemove', onMove);
-  }, []);
-
-  // Smoothly interpolate rotation towards target on each frame
-  useFrame(() => {
-    const g = groupRef.current;
-    if (!g) return;
-  const lerp = (a, b, t) => a + (b - a) * t;
-  // faster interpolation for snappier follow
-  g.rotation.x = lerp(g.rotation.x, targetRot.current.x, 0.14);
-  g.rotation.y = lerp(g.rotation.y, targetRot.current.y, 0.14);
-  });
-
-  return (
-    <Center>
-      <group ref={groupRef} position={[0, -0.05, 0]} scale={[0.4, 0.4, 0.4]}>
-        <primitive object={gltf.scene} dispose={null} />
-      </group>
-    </Center>
-  );
-}
-
-function CanvasOverlay() {
-  return (
-  <Canvas className="w-full h-full" frameloop="always" camera={{ position: [0, 0, 2.2], fov: 40 }} shadows dpr={[1, 1.5]}>
-      <hemisphereLight intensity={0.35} groundColor={'#111827'} />
-      <ambientLight intensity={0.25} />
-      <directionalLight castShadow intensity={1.6} position={[5, 5, 5]} shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
-      <Suspense fallback={<Html center>Loading...</Html>}>
-        <Environment preset="studio" background={false} />
-        <ModelScene />
-      </Suspense>
-      <ContactShadows position={[0, -1.2, 0]} opacity={0.6} blur={6} far={10} />
-      <OrbitControls enablePan={false} enableZoom={false} autoRotate={false} />
-    </Canvas>
-  );
-}
-
-// Portal the overlay to document.body so it's not clipped by ancestor transforms/overflow
-// Separate 3D model component that can be used in other pages
-export function ThreeDModel() {
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
-      <div className="pointer-events-auto w-[120rem] h-[120rem] overflow-visible">
-        <CanvasOverlay />
-      </div>
-    </div>
-  );
-}
-
-function PortalCanvas() {
-  const [portalEl, setPortalEl] = useState(null);
-
-  useEffect(() => {
-    const el = document.createElement('div');
-    el.style.position = 'fixed';
-    el.style.inset = '0';
-    el.style.display = 'flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.pointerEvents = 'none';
-    el.style.zIndex = '9999';
-    document.body.appendChild(el);
-    setPortalEl(el);
-    return () => {
-      if (el && el.parentNode) el.parentNode.removeChild(el);
-      setPortalEl(null);
-    };
-  }, []);
-
-  if (!portalEl) return null;
-
-  return createPortal(
-    <div className="pointer-events-none w-full h-full flex items-center justify-center">
-      <div className="pointer-events-auto w-[120rem] h-[120rem] overflow-x-hidden">
-        <CanvasOverlay />
-      </div>
-    </div>,
-    portalEl
-  );
-}
+import { useFrame } from '@react-three/fiber';
+import { useGLTF, Center, Environment } from '@react-three/drei';
 
 const pexelsImages = [
   'https://images.pexels.com/photos/32617821/pexels-photo-32617821.jpeg',
@@ -137,8 +16,195 @@ const pexelsImages = [
   'https://images.pexels.com/photos/2387793/pexels-photo-2387793.jpeg',
   'https://images.pexels.com/photos/1591447/pexels-photo-1591447.jpeg',
   'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg',
-  'https://images.pexels.com/photos/1323712/pexels-photo-1323712.jpeg'
+  'https://images.pexels.com/photos/1323712/pexels-photo-1323712'
 ];
+
+// 3D Model component with cursor following
+function Model3D({ modelPath, position = [0, 0, 0], scale = [1, 1, 1], maxRotation = 0.3, initialRotation = [0, 0, 0] }) {
+  const gltf = useGLTF(modelPath);
+  const groupRef = useRef();
+  const targetRot = useRef({ x: 0, y: 0 });
+  const isPointerDown = useRef(false);
+  const prevPointer = useRef({ x: 0, y: 0 });
+
+  // Update target rotation based on mouse position (hover) and on drag (pointer)
+  useEffect(() => {
+    const onMove = (e) => {
+      if (isPointerDown.current) return; // when dragging we use pointermove
+      const nx = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
+      const ny = (e.clientY / window.innerHeight - 0.5) * 2; // -1 to 1
+      targetRot.current.x = -ny * maxRotation;
+      targetRot.current.y = nx * maxRotation;
+    };
+
+    const onPointerDown = (e) => {
+      isPointerDown.current = true;
+      prevPointer.current.x = e.clientX;
+      prevPointer.current.y = e.clientY;
+    };
+
+    const onPointerMove = (e) => {
+      if (!isPointerDown.current) return;
+      const dx = (e.clientX - prevPointer.current.x) / window.innerWidth; // normalized delta
+      const dy = (e.clientY - prevPointer.current.y) / window.innerHeight;
+      // apply incremental rotation change for dragging
+      targetRot.current.y += dx * maxRotation * 2.0;
+      targetRot.current.x += -dy * maxRotation * 2.0;
+      prevPointer.current.x = e.clientX;
+      prevPointer.current.y = e.clientY;
+    };
+
+    const onPointerUp = () => {
+      isPointerDown.current = false;
+    };
+
+    // Touch fallback handlers
+    const onTouchStart = (t) => {
+      const touch = t.touches && t.touches[0];
+      if (!touch) return;
+      onPointerDown(touch);
+    };
+    const onTouchMove = (t) => {
+      const touch = t.touches && t.touches[0];
+      if (!touch) return;
+      onPointerMove(touch);
+    };
+
+    window.addEventListener('mousemove', onMove, { passive: true });
+    window.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp);
+
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onPointerUp);
+    };
+  }, [maxRotation]);
+
+  // Smooth interpolation to target rotation
+  useFrame(() => {
+    if (!groupRef.current) return;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    groupRef.current.rotation.x = lerp(groupRef.current.rotation.x, targetRot.current.x, 0.08);
+    groupRef.current.rotation.y = lerp(groupRef.current.rotation.y, targetRot.current.y, 0.08);
+  });
+
+  // apply an initial rotation (useful when model faces X axis in modeling tool)
+  useEffect(() => {
+    if (!groupRef.current) return;
+    try {
+      groupRef.current.rotation.set(initialRotation[0] || 0, initialRotation[1] || 0, initialRotation[2] || 0);
+    } catch (e) {
+      // ignore if rotation cannot be set immediately
+    }
+  }, [initialRotation]);
+
+  return (
+    <Center>
+      <group ref={groupRef} position={position} scale={scale}>
+        <primitive object={gltf.scene} dispose={null} />
+      </group>
+    </Center>
+  );
+}
+
+// 3D Canvas component positioned at specific screen location
+function PositionedModel({ modelPath, position, canvasStyle, scale = [0.5, 0.5, 0.5], maxRotation = 0.2, cameraConfig = {} }) {
+  const defaultCamera = { position: [0, 0, 3], fov: 45 };
+  const camera = { ...defaultCamera, ...cameraConfig };
+  
+  return (
+    <div className={`fixed pointer-events-none z-[9999] ${position}`} style={canvasStyle}>
+      <Canvas
+        className="w-full h-full"
+        camera={camera}
+        dpr={[1, 1.5]}
+      >
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[10, 10, 5]} intensity={1} />
+        <Suspense fallback={null}>
+          <Environment preset="studio" background={false} />
+          <Model3D 
+            modelPath={modelPath} 
+            scale={scale} 
+            maxRotation={maxRotation}
+          />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
+
+// Raw Logo Model Component - Center of screen with specific camera settings
+function RawLogoModel() {
+  return (
+    <div className="fixed z-[9999] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab" 
+         style={{ width: '2000px', height: '2000px', touchAction: 'none' }}>
+      <Canvas
+        className="w-full h-full"
+        camera={{ 
+          position: [0, 0, 2],    // Camera distance and angle
+          fov: 50,                // Field of view
+          rotation: [0, 0, 0]     // Camera rotation
+        }}
+        dpr={[1, 1.5]}
+      >
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 5, 5]} intensity={1.2} />
+        <pointLight position={[-5, -5, -5]} intensity={0.3} />
+        <Suspense fallback={null}>
+          <Environment preset="sunset" background={false} />
+          <Model3D 
+            modelPath="/raw_logo.glb"
+            scale={[0.6, 0.6, 0.6]}
+            maxRotation={0.22}
+          />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
+
+// Music Model Component - Top left corner with specific camera settings
+function MusicModel() {
+  return (
+  <div className="fixed z-[9999] top-8 left-8 cursor-grab" 
+     style={{ width: '400px', height: '400px', touchAction: 'none' }}>
+      <Canvas
+        className="w-full h-full"
+        camera={{ 
+          position: [0, 0, 2],     // Direct front view - centered camera
+          fov: 45,                 // Wider field of view for better visibility
+          rotation: [0, 0, 0]      // No camera tilt - facing directly forward
+        }}
+        dpr={[1, 1.5]}
+      >
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[0, 5, 5]} intensity={1.0} />
+        <directionalLight position={[0, -5, 5]} intensity={0.5} />
+        <pointLight position={[2, 2, 2]} intensity={0.4} />
+        <Suspense fallback={null}>
+          <Environment preset="studio" background={false} />
+          <Model3D 
+            modelPath="/newMusic3.glb"
+            scale={[0.5, 0.5, 0.5]}
+            maxRotation={0.1}
+            // start with a rightward-facing bias so its resting pose matches hover-on-right
+            initialRotation={[0, 2, 0]}
+          />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
 
 export default function Home() {
   const containerRef = useRef(null);
@@ -240,48 +306,25 @@ export default function Home() {
           loop
           playsInline
           preload="auto"
-          // subtle scale + color grading filter for cinematic look
-          style={{
-            transform: 'scale(1)',
-            transformOrigin: 'center',
-            filter: 'brightness(0.58) contrast(1.06) saturate(1.12) sepia(0.04) hue-rotate(-6deg)'
-          }}
+          style={{ transform: 'scale(1)', transformOrigin: 'center', filter: 'blur(6px)' }}
         />
 
-        {/* cinematic color overlay (subtle teal/indigo grade + darken) */}
+        {/* Modern glassmorphism overlay above the video - frosted glass effect.
+            The 3D model canvases are rendered outside this container with higher z-index, so they remain sharp. */}
         <div
-          aria-hidden
+          aria-hidden="true"
           className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(180deg, rgba(12,18,40,0.22), rgba(0,0,0,0.5))',
-            mixBlendMode: 'overlay'
+          style={{ 
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
           }}
         />
 
-        {/* vignette to darken edges */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%)'
-          }}
-        />
 
-        {/* Subtle dim overlay to keep text readable */}
-        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-
-        {/* Grain/noise overlay on top of the video */}
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px)',
-            backgroundSize: '3px 3px, 6px 6px',
-            mixBlendMode: 'overlay',
-            opacity: 0.18
-          }}
-        />
+  {/* Overlays and 3D canvas removed per request: keep only the raw background video and interaction */}
 
   {/* glassmorphism overlay removed per request */}
 
@@ -292,8 +335,15 @@ export default function Home() {
   {/* center content removed per request */}
       </motion.div>
 
-  {/* 3D overlay - only renders when Home component is active */}
-  <PortalCanvas />
+      {/* 3D Model Overlays - Each with separate camera configurations */}
+      
+      {/* Raw Logo Model - Center of screen with custom camera angle */}
+      <RawLogoModel />
+      
+      {/* Music Model - Top left corner with different camera setup */}
+      <MusicModel />
+
+  {/* 3D model rendered inline so it scrolls with the page (moved inside motion container) */}
 
   {/* mouse cursor removed to avoid per-frame React updates */}
 

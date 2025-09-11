@@ -66,28 +66,24 @@ export default function Project() {
 
   return (
     // position and z-index ensure this component sits above the portal 3D canvas
-    <div ref={projectRef} className='min-h-[100vh] bg-yellow-200 z-[10001] pointer-events-auto relative flex items-center justify-center'>
+    <div ref={projectRef} className='min-h-[130vh] bg-[#e0e1dd] z-[10001] pointer-events-auto relative flex items-center justify-center'>
       {/* centered stack of boxes - will be pinned by ScrollTrigger at the end of this section */}
   <div ref={boxesContainerRef} className="BOXES flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">
-          <div ref={box1Ref} className="box1 absolute h-76 w-76 bg-red-500"></div>
-          <div ref={box2Ref} className="box1 absolute h-76 w-76 bg-red-500"></div>
-          <div ref={box3Ref} className="box1 absolute h-76 w-76 bg-red-500"></div>
-          <div ref={box4Ref} className="box1 absolute h-76 w-76 bg-red-500"></div>
-          <div ref={box5Ref} className="box1 absolute h-76 w-76 bg-red-500"></div>
-            <div ref={box1Ref} className="box1 absolute h-76 w-76 bg-red-500 overflow-hidden">
+       
+            <div ref={box1Ref} className="box1 absolute h-86 w-86 bg-red-500 overflow-hidden">
               <img src="https://i.pinimg.com/736x/7f/dd/31/7fdd319d4ebf18ecc23888940079f726.jpg" alt="" className="h-full w-full object-cover" />
             </div>
-            <div ref={box2Ref} className="box1 absolute h-76 w-76 bg-red-500 overflow-hidden">
+            <div ref={box2Ref} className="box1 absolute h-86 w-86 bg-red-500 overflow-hidden">
               <img src="https://i.pinimg.com/736x/7f/dd/31/7fdd319d4ebf18ecc23888940079f726.jpg" alt="" className="h-full w-full object-cover" />
             </div>
-            <div ref={box3Ref} className="box1 absolute h-76 w-76 bg-red-500 overflow-hidden">
+            <div ref={box3Ref} className="box1 absolute h-86 w-86 bg-red-500 overflow-hidden">
               <img src="https://i.pinimg.com/736x/7f/dd/31/7fdd319d4ebf18ecc23888940079f726.jpg" alt="" className="h-full w-full object-cover" />
             </div>
-            <div ref={box4Ref} className="box1 absolute h-76 w-76 bg-red-500 overflow-hidden">
+            <div ref={box4Ref} className="box1 absolute h-86 w-86 bg-red-500 overflow-hidden">
               <img src="https://i.pinimg.com/736x/7f/dd/31/7fdd319d4ebf18ecc23888940079f726.jpg" alt="" className="h-full w-full object-cover" />
             </div>
-            <div ref={box5Ref} className="box1 absolute h-76 w-76 bg-red-500 overflow-hidden">
+            <div ref={box5Ref} className="box1 absolute h-86 w-86 bg-red-500 overflow-hidden">
               <img src="https://i.pinimg.com/736x/7f/dd/31/7fdd319d4ebf18ecc23888940079f726.jpg" alt="" className="h-full w-full object-cover" />
             </div>
         </div>
