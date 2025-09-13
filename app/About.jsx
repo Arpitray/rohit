@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import ProfileCard from './components/ProfileCard'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -33,9 +34,9 @@ function About() {
         { y: 0, scale: 1, autoAlpha: 1, duration: contentDur, ease: 'power3.out' }
       );
 
-      // then animate the image appearance: slide in from left
+      // then animate the ProfileCard appearance: slide in from left
       tl.from(
-        contentRef.current.querySelectorAll('.image'),
+        contentRef.current.querySelectorAll('.profile-card-container'),
         { x: -150, autoAlpha: 0, duration: 0.7, ease: 'power3.out' }
       );
 
@@ -54,11 +55,21 @@ function About() {
       {/* 3D model gets covered by this layer */}
 
       {/* About content layer that covers the 3D model */}
-      <div className="relative z-[10000] h-full bg-[#01161e] backdrop-blur-sm flex items-center justify-center">
+  <div className="relative z-20 h-full bg-[#0a100d] backdrop-blur-2xl flex items-center justify-center">
         {/* Your about content goes here */}
-        <div ref={contentRef} className="content h-[85vh] w-[95%] bg-[#edede9] flex items-center">
-            <div className="image h-156 w-1/2 m-8">
-                <img className='h-full w-[70%] object-cover' src="https://i.pinimg.com/1200x/5d/c0/12/5dc0126ea6604d35b63de174adf4ab1b.jpg" alt="" />
+        <div ref={contentRef} className="content h-[85vh] w-[95%] bg-[#edede9] flex items-center rounded-3xl">
+            <div className="profile-card-container h-156 w-1/2 m-8 flex justify-center items-center">
+                <ProfileCard 
+                  name="Rohit Kumar"
+                  title="Web Developer"
+                  handle="rohitkumar"
+                  status="Available for projects"
+                  contactText="Contact Me"
+                  onContactClick={() => {
+                    // Add your contact logic here
+                    console.log('Contact clicked!');
+                  }}
+                />
             </div>
             <div className="te w-1/2 m-8 self-start mt-26">
                 <h1 className='text-7xl font-bold mb-4 w-ful text-center '>About Me</h1>

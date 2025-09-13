@@ -14,12 +14,15 @@ export default function LenisProvider({ children }) {
     if (typeof window === 'undefined') return
 
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.5, // Increased from 1.2 for slower scrolling
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smooth: true,
       direction: 'vertical',
       gestureOrientation: 'vertical',
-      lerp: 0.1,
+      lerp: 0.06, // Reduced from 0.1 for smoother, slower interpolation
+      wheelMultiplier: 0.6, // Reduce wheel scroll sensitivity
+      touchMultiplier: 0.8, // Reduce touch scroll sensitivity
+      smoothWheel: true,
     })
 
     lenisRef.current = lenis

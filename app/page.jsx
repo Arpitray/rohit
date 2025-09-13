@@ -2,7 +2,7 @@
 'use client';
 
 import { motion, useMotionValue } from 'framer-motion';
-import { useEffect, useRef, useState, Suspense } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, Center, Environment } from '@react-three/drei';
@@ -122,7 +122,7 @@ function PositionedModel({ modelPath, position, canvasStyle, scale = [0.5, 0.5, 
   const camera = { ...defaultCamera, ...cameraConfig };
   
   return (
-    <div className={`fixed pointer-events-none z-[9999] ${position}`} style={canvasStyle}>
+    <div className={`fixed pointer-events-none ${position}`} z-20 style={{ ...canvasStyle, zIndex: -1 }}>
       <Canvas
         className="w-full h-full"
         camera={camera}
@@ -146,8 +146,8 @@ function PositionedModel({ modelPath, position, canvasStyle, scale = [0.5, 0.5, 
 // Raw Logo Model Component - Center of screen with specific camera settings
 function RawLogoModel() {
   return (
-    <div className="fixed z-[9999] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab" 
-         style={{ width: '2000px', height: '2000px', touchAction: 'none' }}>
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab" 
+         style={{ width: '2000px', height: '2000px', touchAction: 'none', zIndex: 10 }}>
       <Canvas
         className="w-full h-full"
         camera={{ 
@@ -176,7 +176,7 @@ function RawLogoModel() {
 // Music Model Component - Top left corner with specific camera settings
 function MusicModel() {
   return (
-  <div className="fixed z-[9999] top-8 left-8 cursor-grab" 
+  <div className="fixed z-10 top-8 left-8 cursor-grab" 
      style={{ width: '400px', height: '400px', touchAction: 'none' }}>
       <Canvas
         className="w-full h-full"
