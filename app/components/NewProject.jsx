@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import LazyVideo from './LazyVideo'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -40,14 +41,18 @@ function NewProject() {
         onUpdate: (self) => {
           console.log('NewProject appearance progress:', self.progress)
           
-          // Show NewProject when we're 30% through the pin
+          // Show NewProject when we're 30% through the pin with slower animation
           if (self.progress >= 0.3) {
             const adjustedProgress = (self.progress - 0.3) / 0.7 // Normalize 0.3-1.0 to 0-1
             
-            // Move the container into view (keep opacity at 1)
+            // Apply easing for slower, smoother appearance
+            const easedProgress = gsap.parseEase("power2.out")(adjustedProgress)
+            
+            // Move the container into view with slower, smoother animation
             gsap.to(containerRef.current, {
-              y: `${100 - (adjustedProgress * 100)}vh`,
-              duration: 0.1,
+              y: `${100 - (easedProgress * 100)}vh`,
+              duration: 1, // Increased from 0.1 for slower animation
+              
               overwrite: true
             })
 
@@ -57,28 +62,31 @@ function NewProject() {
               console.log('NewProject is now fully visible')
             }
 
-            // Animate project cards
+            // Animate project cards with slower stagger
             if (projectsRef.current.length > 0) {
               projectsRef.current.forEach((project, index) => {
-                const delay = index * 0.1
+                const delay = index * 0.15 // Increased delay between cards
                 const cardProgress = Math.max(0, adjustedProgress - delay)
+                const easedCardProgress = gsap.parseEase("power2.out")(cardProgress)
                 
-                // Ensure cards remain vertically aligned and fully opaque
+                // Ensure cards remain vertically aligned and fully opaque with slower animation
                 gsap.to(project, {
                   y: 0,
                   opacity: 1,
-                  duration: 0.1,
+                  duration: 1, // Increased from 0.1 for slower card animation
+                  
                   overwrite: true
                 })
               })
             }
           } else {
-            // Hide NewProject when below 30%
+            // Hide NewProject when below 30% with slower animation
             isNewProjectVisible = false
-            // Move container back below viewport (keep opacity at 1)
+            // Move container back below viewport with slower animation
             gsap.to(containerRef.current, {
               y: '100vh',
-              duration: 0.1,
+              duration: 0.4, // Increased from 0.1 for slower hide animation
+            
               overwrite: true
             })
           }
@@ -88,7 +96,7 @@ function NewProject() {
       // Create horizontal scrolling effect using the spacer div as trigger
       ScrollTrigger.create({
         trigger: horizontalTrigger,
-        start: 'top bottom',
+        start: 'top top',
         end: 'bottom top',
         scrub: 1,
         invalidateOnRefresh: true,
@@ -100,7 +108,7 @@ function NewProject() {
           if (isNewProjectVisible && containerRef.current) {
             // Calculate horizontal movement
             // Move from 0vw to -600vw (showing all 6 projects at 120vw each)
-            const maxTranslateX = -680 // -600vw to show all 6 projects (120vw each)
+            const maxTranslateX = -572 // -600vw to show all 6 projects (120vw each)
             const translateX = self.progress * maxTranslateX
             
             gsap.to(containerRef.current, {
@@ -128,26 +136,87 @@ function NewProject() {
   return (
     <div 
       ref={containerRef}
-      className='fixed top-0 left-0 w-[720vw] h-[100vh] flex items-center z-50 bg-white'
+      className='fixed top-0 left-0 w-[600vw] h-[100vh] flex items-center z-50 bg-white'
+      style={{ transform: 'translateY(100vh)' }}
       data-section="newproject"
     >
-      <div ref={addToRefs} className="project1 w-[120vw] h-full bg-green-300 flex items-center justify-center">
-        <h2 className="text-6xl font-bold text-white">Project 1</h2>
+      <div ref={addToRefs} className="project1 w-[100vw] h-full bg-green-300 flex items-center justify-center relative p-8">
+        <div className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg">
+          <LazyVideo 
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <h2 className="text-6xl font-bold text-white z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Project 1</h2>
+        </div>
       </div>
-      <div ref={addToRefs} className="project2 w-[120vw] h-full bg-blue-300 flex items-center justify-center">
-        <h2 className="text-6xl font-bold text-white">Project 2</h2>
+      <div ref={addToRefs} className="project2 w-[100vw] h-full bg-blue-300 flex items-center justify-center relative p-8">
+        <div className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg">
+          <LazyVideo 
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <h2 className="text-6xl font-bold text-white z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Project 2</h2>
+        </div>
       </div>
-      <div ref={addToRefs} className="project3 w-[120vw] h-full bg-red-300 flex items-center justify-center">
-        <h2 className="text-6xl font-bold text-white">Project 3</h2>
+      <div ref={addToRefs} className="project3 w-[100vw] h-full bg-red-300 flex items-center justify-center relative p-8">
+        <div className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg">
+          <LazyVideo 
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <h2 className="text-6xl font-bold text-white z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Project 3</h2>
+        </div>
       </div>
-      <div ref={addToRefs} className="project4 w-[120vw] h-full bg-yellow-300 flex items-center justify-center">
-        <h2 className="text-6xl font-bold text-black">Project 4</h2>
+      <div ref={addToRefs} className="project4 w-[100vw] h-full bg-yellow-300 flex items-center justify-center relative p-8">
+        <div className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg">
+          <LazyVideo 
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <h2 className="text-6xl font-bold text-black z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Project 4</h2>
+        </div>
       </div>
-      <div ref={addToRefs} className="project5 w-[120vw] h-full bg-purple-300 flex items-center justify-center">
-        <h2 className="text-6xl font-bold text-white">Project 5</h2>
+      <div ref={addToRefs} className="project5 w-[100vw] h-full bg-purple-300 flex items-center justify-center relative p-8">
+        <div className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg">
+          <LazyVideo 
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <h2 className="text-6xl font-bold text-white z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Project 5</h2>
+        </div>
       </div>
-      <div ref={addToRefs} className="project6 w-[120vw] h-full bg-pink-300 flex items-center justify-center">
-        <h2 className="text-6xl font-bold text-white">Project 6</h2>
+      <div ref={addToRefs} className="project6 w-[100vw] h-full bg-pink-300 flex items-center justify-center relative p-8">
+        <div className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg">
+          <LazyVideo 
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <h2 className="text-6xl font-bold text-white z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Project 6</h2>
+        </div>
       </div>
     </div>
   )

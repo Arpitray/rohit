@@ -44,10 +44,10 @@ function TextProject() {
   return (
     <div 
       ref={containerRef} 
-      className='h-screen w-full bg-gray-400 flex items-center justify-center relative z-30'
+      className='h-screen w-full bg-gray-400 flex items-center justify-center relative font-["techb"]  z-30'
       data-section="textproject"
     >
-      <div ref={contentRef} className="transform-origin-center">
+      <div ref={contentRef} className="transform-origin-center font-['techb']">
         <h1 className='text-8xl font-bold text-center'>Selected Projects</h1>
         <p className='text-2xl text-center mt-6 opacity-80'>
           Discover my latest work and creative solutions

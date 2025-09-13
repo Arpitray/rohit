@@ -1,1 +1,9 @@
 @import "tailwindcss";
+@font-face {
+    font-family: "tech";
+    src: url("/app/tech.ttf");
+}
+@font-face {
+    font-family: "techb";
+    src: url("/app/tech.ttf");
+}
