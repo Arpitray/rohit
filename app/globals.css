@@ -1,9 +1,53 @@
 @import "tailwindcss";
 @font-face {
     font-family: "tech";
-    src: url("/app/tech.ttf");
+    src: url("/fonts/tech.ttf");
 }
 @font-face {
     font-family: "techb";
-    src: url("/app/tech.ttf");
+    src: url("/fonts/techb.otf");
 }
+@font-face {
+    font-family: "clashB";
+    /* Prefer serving fonts from the public folder: /public/fonts/ */
+    src: url("/fonts/clashB.otf");
+}
+@font-face {
+    font-family: "clashS";
+    /* Prefer serving fonts from the public folder: /public/fonts/ */
+    src: url("/fonts/clashS.otf");
+}
+
+/* Textured black background utility */
+:root {
+    --black-bg-color: #0b0b0b;
+    --black-bg-overlay: rgba(0,0,0,0.45);
+}
+
+.textured-black-bg {
+    background-color: var(--black-bg-color);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.06' fill='%23000000'/></svg>"), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
+    background-repeat: repeat;
+    background-size: auto;
+}
+
+.textured-black-overlay {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.25));
+}
+
+/* Helper rules for Tailwind arbitrary font utilities like font-["clashB"]
+   Some build setups (purge/JIT) may strip arbitrary class names. These
+   explicit selectors ensure the font-family is applied at runtime. */
+.font-\[\"clashB\"\] {
+    font-family: "clashB", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+.font-\[\"clashS\"\] {
+    font-family: "clashS", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Optional helper classes you can use directly in markup if you prefer */
+.clashB-font { font-family: "clashB", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+.clashS-font { font-family: "clashS", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+
+/* NOTE: For these to work the actual font files should be placed in public/fonts/
+   e.g., c:\Arpit\arpit java\rohit\public\fonts\clashB.otf */

@@ -6,6 +6,10 @@ import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, Center, Environment } from '@react-three/drei';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const pexelsImages = [
   'https://images.pexels.com/photos/32617821/pexels-photo-32617821.jpeg',
@@ -144,10 +148,10 @@ function PositionedModel({ modelPath, position, canvasStyle, scale = [0.5, 0.5, 
 }
 
 // Raw Logo Model Component - Center of screen with specific camera settings
-function RawLogoModel() {
+function RawLogoModel({ modelRef }) {
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab" 
-         style={{ width: '2000px', height: '2000px', touchAction: 'none', zIndex: 10 }}>
+    <div ref={modelRef} className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab" 
+         style={{ width: '2000px', height: '2000px', touchAction: 'none', zIndex: 1 }}>
       <Canvas
         className="w-full h-full"
         camera={{ 
@@ -174,9 +178,9 @@ function RawLogoModel() {
 }
 
 // Music Model Component - Top left corner with specific camera settings
-function MusicModel() {
+function MusicModel({ modelRef }) {
   return (
-  <div className="fixed z-10 top-8 left-8 cursor-grab" 
+  <div ref={modelRef} className="fixed z-[1] top-8 left-8 cursor-grab" 
      style={{ width: '400px', height: '400px', touchAction: 'none' }}>
       <Canvas
         className="w-full h-full"
@@ -208,6 +212,9 @@ function MusicModel() {
 
 export default function Home() {
   const containerRef = useRef(null);
+  const videoRef = useRef(null);
+  const rawLogoRef = useRef(null);
+  const musicModelRef = useRef(null);
   const x = useMotionValue(0); // pixel translateX
   const y = useMotionValue(0); // pixel translateY
   
@@ -284,8 +291,44 @@ export default function Home() {
     };
   }, [x, y]);
 
+  // GSAP ScrollTrigger for dynamic blur effect on video and 3D models
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.to([videoRef.current, rawLogoRef.current, musicModelRef.current], {
+        filter: "blur(50px)",
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "+=200vh",
+          scrub: 1,
+          onUpdate: (self) => {
+            // Map scroll progress (0 to 1) to blur (0px to 50px)
+            const blurAmount = self.progress * 100;
+            
+            // Apply blur to video
+            if (videoRef.current) {
+              videoRef.current.style.filter = `blur(${blurAmount}px)`;
+            }
+            
+            // Apply blur to 3D models
+            if (rawLogoRef.current) {
+              rawLogoRef.current.style.filter = `blur(${blurAmount}px)`;
+            }
+            if (musicModelRef.current) {
+              musicModelRef.current.style.filter = `blur(${blurAmount}px)`;
+            }
+          }
+        }
+      });
+    }, [videoRef, rawLogoRef, musicModelRef]);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-transparent overflow-x-hidden">
+    <div className="fixed top-0 left-0 w-screen h-screen overflow-hidden textured-black-bg z-0">
       <motion.div
         ref={containerRef}
         className="relative w-[200vw] h-[150vh] will-change-transform"
@@ -299,15 +342,19 @@ export default function Home() {
       >
         {/* Background video covering the whole canvas (200vw x 150vh) */}
         <video
-          className="absolute top-0 left-0 w-full h-full object-cover pointer-events-none"
+          ref={videoRef}
+          className="landing-bg-video absolute top-0 left-0 w-full h-full object-cover pointer-events-none"
           src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
-          style={{ transform: 'scale(1)', transformOrigin: 'center', filter: 'blur(6px)' }}
+          style={{ transform: 'scale(1)', transformOrigin: 'center' }}
         />
+
+  {/* subtle dark overlay so glass sections read better */}
+  <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.35)' }} />
 
         {/* Modern glassmorphism overlay above the video - frosted glass effect.
             The 3D model canvases are rendered outside this container with higher z-index, so they remain sharp. */}
@@ -316,7 +363,7 @@ export default function Home() {
           className="absolute inset-0 pointer-events-none"
           style={{ 
             background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-            backdropFilter: 'blur(10px)',
+            
             WebkitBackdropFilter: 'blur(20px)',
             border: '1px solid rgba(255,255,255,0.1)',
             boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
@@ -338,10 +385,10 @@ export default function Home() {
       {/* 3D Model Overlays - Each with separate camera configurations */}
       
       {/* Raw Logo Model - Center of screen with custom camera angle */}
-      <RawLogoModel />
+      <RawLogoModel modelRef={rawLogoRef} />
       
       {/* Music Model - Top left corner with different camera setup */}
-      <MusicModel />
+      <MusicModel modelRef={musicModelRef} />
 
   {/* 3D model rendered inline so it scrolls with the page (moved inside motion container) */}
 

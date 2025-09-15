@@ -16,12 +16,20 @@ export default function RootLayout() {
         className={`overflow-x-hidden`}
       >
         <LenisProvider>
+          {/* Fixed Landing Canvas Background */}
           <Home />
-          <About />
-          <TextProject />
-          {/* Extended spacer div to provide scroll distance for horizontal NewProject scrolling */}
-          <div id="horizontal-scroll-trigger" className="h-[800vh] bg-transparent"></div>
-          <NewProject />
+          
+          {/* Scrollable Content Layer */}
+          <div className="relative z-10">
+            {/* Add spacer to allow scrolling past the fixed landing */}
+            <div className="h-screen bg-transparent"></div>
+            
+            <About />
+            <TextProject />
+            {/* Extended spacer div to provide scroll distance for horizontal NewProject scrolling */}
+            <div id="horizontal-scroll-trigger" className="h-[800vh] bg-transparent"></div>
+            <NewProject />
+          </div>
         </LenisProvider>
       </body>
     </html>
