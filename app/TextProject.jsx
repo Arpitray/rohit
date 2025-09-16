@@ -46,7 +46,12 @@ function TextProject() {
       ref={containerRef} 
       className='h-screen w-full flex items-center justify-center relative font-["techb"] z-20 textured-black-bg'
       style={{
-        background: 'rgba(0, 0, 0, 0.35)',
+        backgroundImage: `url('/textproject-bg.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
+        // Dark translucent overlay on top of the image
+        backgroundColor: 'rgba(0, 0, 0, 0.35)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         border: 'none',
@@ -56,12 +61,9 @@ function TextProject() {
       }}
       data-section="textproject"
     >
-      <div ref={contentRef} className="transform-origin-center font-['clashB'] leading-4 "
+      <div ref={contentRef} className="transform-origin-center font-['clashB'] leading-4 relative z-30"
            style={{
-             
              padding: '2rem',
-             
-          
            }}>
         <h1 className='text-8xl font-bold text-center text-white' 
             style={{ 
