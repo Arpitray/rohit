@@ -7,7 +7,7 @@ import LenisProvider from './components/LenisProvider'
 import Project from "./components/Project";
 import NewProject from "./components/NewProject";
 import TextProject from "./TextProject";
-import PersonlProject from "./components/PersonalProject";
+import Personal2 from "./components/Personal2";
 
 
 export default function RootLayout() {
@@ -32,8 +32,8 @@ export default function RootLayout() {
             <NewProject />
             {/* Spacer to ensure PersonalProject appears after horizontal scrolling completes */}
             <div className="h-screen bg-transparent"></div>
-            {/* PersonalProject appears after horizontal scrolling completes */}
-            <PersonlProject />
+            {/* Personal2 appears after horizontal scrolling completes */}
+            <Personal2 />
           </div>
         </LenisProvider>
       </body>
