@@ -52,30 +52,25 @@ function About() {
   }, [])
 
   return (
-    <div ref={rootRef} className='relative h-screen' data-section="about">
+    <div ref={rootRef} className='relative h-screen' data-section="about" style={{ transform: 'translateY(-24px)', zIndex: 10 }}>
       {/* 3D model gets covered by this layer */}
 
       {/* About content layer with glassmorphism effect */}
-      <div className="relative z-20 h-full flex items-center justify-center textured-black-bg" 
+  <div className="relative z-10 h-full flex items-center justify-center " 
            style={{
-             background: 'rgba(0, 0, 0, 0.35)',
-             backdropFilter: 'blur(20px)',
-             WebkitBackdropFilter: 'blur(20px)',
-             border: 'none',
-             boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.6)',
-             WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
-             maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
+             // make the section transparent so the underlying canvas shows through
+             background: 'transparent',
+             border: 'none'
            }}>
         {/* Your about content goes here */}
-        <div ref={contentRef} className="content h-[85vh] w-[95%] flex items-center rounded-2xl textured-black-overlay"
+  <div ref={contentRef} className="content h-full w-full flex items-center"
              style={{
-               background: '#151515',
-               backdropFilter: 'blur(10px)',
-               WebkitBackdropFilter: 'blur(10px)',
-               border: '1px solid rgba(255, 255, 255, 0.04)',
-               boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.3)'
+               // make the inner content full-bleed and visually merge with surrounding areas
+               background: 'transparent',
+               backdropFilter: 'none',
+               WebkitBackdropFilter: 'none'
              }}>
-            <div className="profile-card-container h-156 w-1/2 m-8 flex justify-center items-center">
+            <div className="profile-card-container h-156 w-1/2 p-6 flex justify-center items-center">
                 <ProfileCard 
                   name="Rohit Kumar"
                   title="Web Developer"
@@ -88,7 +83,7 @@ function About() {
                   }}
                 />
             </div>
-            <div className="te w-1/2 m-8 self-start mt-26 ">
+            <div className="te w-1/2 px-6 self-start mt-48 ">
                 <h1 className='text-9xl font-bold mb-4 w-full text-center text-white font-["clashB"] leading-wider'
                     style={{ 
                       textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)' 

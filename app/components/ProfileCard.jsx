@@ -30,6 +30,7 @@ const ProfileCardComponent = ({
   behindGradient,
   innerGradient,
   showBehindGradient = true,
+  hoverAvatarUrl = 'https://res.cloudinary.com/dsjjdnife/image/upload/v1757698014/asap_f2kjqo.png',
   className = '',
   enableTilt = true,
   enableMobileTilt = false,
@@ -264,15 +265,27 @@ const ProfileCardComponent = ({
           {/* place name/title first for readability, then avatar slightly lower */}
           <div className="pc-content">
             <div className="pc-details">
-              <h3>{name}</h3>
+              <h3 className='font-["clashB"]'>{name}</h3>
               <p>{title}</p>
             </div>
           </div>
-          <div className="pc-content pc-avatar-content">
+          <div className="pc-content pc-avatar-content ">
+            {/* Primary avatar (default) */}
             <img
-              className="avatar"
+              className="avatar avatar-primary"
               src={avatarUrl}
               alt={`${name || 'User'} avatar`}
+              loading="lazy"
+              onError={e => {
+                const target = e.target;
+                target.style.display = 'none';
+              }}
+            />
+            {/* Hover avatar (appears on hover if provided) */}
+            <img
+              className="avatar avatar-hover"
+              src={hoverAvatarUrl || avatarUrl}
+              alt={`${name || 'User'} avatar hover`}
               loading="lazy"
               onError={e => {
                 const target = e.target;
@@ -289,7 +302,7 @@ const ProfileCardComponent = ({
                       loading="lazy"
                       onError={e => {
                         const target = e.target;
-                        target.style.opacity = '0.5';
+                        target.style.opacity = '0.9';
                         target.src = avatarUrl;
                       }}
                     />

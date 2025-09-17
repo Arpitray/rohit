@@ -44,23 +44,34 @@ function TextProject() {
   return (
     <div 
       ref={containerRef} 
-      className='h-screen w-full flex items-center justify-center relative font-["techb"] z-20 textured-black-bg'
+      className='min-h-screen w-full flex items-center justify-center relative font-["techb"] z-30 bg-[#0b0b0b]'
       style={{
-        backgroundImage: `url('/textproject-bg.jpg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center center',
-        backgroundRepeat: 'no-repeat',
-        // Dark translucent overlay on top of the image
-        backgroundColor: 'rgba(0, 0, 0, 0.35)',
+        // Use a neutral dark background color as fallback if image fails
+        backgroundColor: 'rgba(10,10,10,1)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         border: 'none',
-        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.6)',
-        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
-        maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
+        // Add fade-in from top to eliminate border-like appearance
+        maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 100%)'
       }}
       data-section="textproject"
     >
+      {/* Background image layer (absolute) - falls back to hidden on error */}
+      <img
+        src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758026377/selected_failro.jpg"
+        alt="Selected projects background"
+        className="absolute inset-0 w-full h-full object-cover z-10"
+        loading="lazy"
+        style={{
+          filter: 'blur(4px)',
+          transform: 'scale(1.06)'
+        }}
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
+      {/* Dark translucent overlay to keep text readable */}
+      <div className="absolute inset-0 bg-black/40 z-20 pointer-events-none" />
+
       <div ref={contentRef} className="transform-origin-center font-['clashB'] leading-4 relative z-30"
            style={{
              padding: '2rem',

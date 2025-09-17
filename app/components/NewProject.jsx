@@ -298,8 +298,8 @@ function NewProject() {
           // Only do horizontal scrolling if NewProject is visible
           if (isNewProjectVisible && containerRef.current) {
             // Calculate horizontal movement
-            // Move from 0vw to -600vw (showing all 6 projects at 120vw each)
-            const maxTranslateX = -572 // -600vw to show all 6 projects (120vw each)
+            // Move from 0vw to -500vw (showing all 6 projects perfectly)
+            const maxTranslateX = -500 // Exactly -500vw to show all 6 projects (100vw each)
             const translateX = self.progress * maxTranslateX
             
             gsap.to(containerRef.current, {
@@ -342,9 +342,9 @@ function NewProject() {
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
            }}>
         <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
-          title="Project 1"
-          subtitle="Web Development"
+          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1758047615/Legacy_lngu1r.mp4"
+          title="Legacy"
+          subtitle="Raftar and kashmr"
           titleColor="text-white"
         />
       </div>

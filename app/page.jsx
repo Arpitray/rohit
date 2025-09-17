@@ -297,7 +297,7 @@ export default function Home() {
 
     const ctx = gsap.context(() => {
       gsap.to([videoRef.current, rawLogoRef.current, musicModelRef.current], {
-        filter: "blur(50px)",
+        filter: "blur(35px)",
         scrollTrigger: {
           trigger: "body",
           start: "top top",
@@ -305,7 +305,7 @@ export default function Home() {
           scrub: 1,
           onUpdate: (self) => {
             // Map scroll progress (0 to 1) to blur (0px to 50px)
-            const blurAmount = self.progress * 100;
+            const blurAmount = self.progress * 20;
             
             // Apply blur to video
             if (videoRef.current) {

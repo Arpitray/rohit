@@ -7,6 +7,7 @@ import LenisProvider from './components/LenisProvider'
 import Project from "./components/Project";
 import NewProject from "./components/NewProject";
 import TextProject from "./TextProject";
+import PersonlProject from "./components/PersonalProject";
 
 
 export default function RootLayout() {
@@ -27,8 +28,12 @@ export default function RootLayout() {
             <About />
             <TextProject />
             {/* Extended spacer div to provide scroll distance for horizontal NewProject scrolling */}
-            <div id="horizontal-scroll-trigger" className="h-[800vh] bg-transparent"></div>
+            <div id="horizontal-scroll-trigger" className="h-[500vh] bg-transparent"></div>
             <NewProject />
+            {/* Spacer to ensure PersonalProject appears after horizontal scrolling completes */}
+            <div className="h-screen bg-transparent"></div>
+            {/* PersonalProject appears after horizontal scrolling completes */}
+            <PersonlProject />
           </div>
         </LenisProvider>
       </body>
