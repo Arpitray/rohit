@@ -62,7 +62,7 @@
 .custom-cursor-dot {
     width: 28px;
     height: 28px;
-    background: rgba(255, 255, 255, 0.8); /* soft white */
+    background: white; /* pure white for mix-blend-mode difference */
     border-radius: 50%;
     transform: translate3d(-50%, -50%, 0);
     transition: width 120ms ease, height 120ms ease, background 120ms ease, opacity 120ms, border-radius 120ms ease;
@@ -79,7 +79,7 @@
     width: 80px;
     height: 36px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.9);
+    background: white; /* solid white for visibility */
 }
 
 /* Text inside the visit button */

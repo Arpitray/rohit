@@ -38,7 +38,7 @@
   height: 80svh;
   max-height: 710px;
   display: grid;
-  aspect-ratio: 0.968;
+  aspect-ratio: 1.08;
   border-radius: var(--card-radius);
   position: relative;
   /* Use a solid primary color so the card appearance is stable (no canvas bleed) */

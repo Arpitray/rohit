@@ -36,11 +36,11 @@ function Contact() {
           <a href="mailto:rayarpit72@gmail.com" data-project-link="mailto:rayarpit72@gmail.com">rayarpit72@gmail.com</a>
           <a href="https://maps.google.com/?q=Bangalore+Karnataka" data-project-link="https://maps.google.com/?q=Bangalore+Karnataka">Karnataka, Bangalore India</a>
           <a href="https://instagram.com/yourhandle" target="_blank" rel="noreferrer" data-project-link="https://instagram.com/yourhandle">Instagram</a>
-          <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noreferrer" data-project-link="https://linkedin.com/in/yourprofile">LinkedIn</a>
+          <a href="https://www.linkedin.com/in/rohit-bharude-12594121a/" target="_blank" rel="noreferrer" data-project-link="https://www.linkedin.com/in/rohit-bharude-12594121a/">LinkedIn</a>
         </div>
 
         <div className="strip2 relative z-20 flex items-end justify-around mt-162 text-3xl font-['clashB']">
-          <a href="">Raw.@2025</a>
+          <a href="">Raw@2025</a>
         </div>
       </div>
     </>
