@@ -20,12 +20,12 @@ export default function RootLayout() {
         <LenisProvider>
           {/* Fixed Landing Canvas Background */}
           <Home />
-          
+
           {/* Scrollable Content Layer */}
           <div className="relative z-10">
             {/* Add spacer to allow scrolling past the fixed landing */}
             <div className="h-screen bg-transparent"></div>
-            
+
             <About />
             <TextProject />
             {/* Extended spacer div to provide scroll distance for horizontal NewProject scrolling */}
@@ -35,9 +35,14 @@ export default function RootLayout() {
             <div className="h-screen bg-transparent"></div>
             {/* Personal2 appears after horizontal scrolling completes */}
             <Personal2 />
- <div className="h-screen bg-transparent"></div>
-            {/* Personal2 appears after horizontal scrolling completes */}
-            <Contact />          </div>
+          </div>
+
+          {/* Render Contact outside the z-10 stack so it's not covered by fixed/floating layers */}
+          <div className="relative z-20">
+            <Contact />
+          </div>
+
+          {/* Floating quick-access contact button */}
         </LenisProvider>
       </body>
     </html>

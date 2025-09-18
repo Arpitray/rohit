@@ -8,7 +8,7 @@ import LazyVideo from './LazyVideo'
 gsap.registerPlugin(ScrollTrigger)
 
 // Interactive Video Component with mouse movement effect
-function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white" }) {
+function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white", defaultZoom = false, zoomScale = 1.8, showZoomButton = false }) {
   const containerRef = useRef(null)
   const videoRef = useRef(null)
   const titleRef = useRef(null)
@@ -16,6 +16,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   const overlayRef = useRef(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = useState(false)
+  const [isZoomed, setIsZoomed] = useState(!!defaultZoom)
 
   useEffect(() => {
     const container = containerRef.current
@@ -154,7 +155,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       <div
         ref={videoRef}
         style={{
-          transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.3)`,
+          transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(${isZoomed ? zoomScale : 1.3})`,
           transition: 'transform 0.2s ease-out'
         }}
         className="w-full h-full"
@@ -174,6 +175,19 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
         ref={overlayRef}
         className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 pointer-events-none z-10"
       />
+
+      {/* Optional zoom toggle button (top-right) - only shown when showZoomButton is true */}
+      {showZoomButton && (
+        <button
+          onClick={() => setIsZoomed((s) => !s)}
+          className={`absolute top-4 right-4 z-30 bg-black/40 text-white px-3 py-1 rounded backdrop-blur-sm hover:bg-black/60`}
+          aria-pressed={isZoomed}
+          title={isZoomed ? 'Reset zoom' : 'Zoom in'}
+          style={{ pointerEvents: 'auto' }}
+        >
+          {isZoomed ? 'Reset' : 'Zoom'}
+        </button>
+      )}
       
       {/* Title and subtitle positioned at bottom-left */}
       <div className="absolute bottom-8 left-8 z-20 pointer-events-none overflow-hidden">
@@ -341,12 +355,30 @@ function NewProject() {
              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
            }}>
-        <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1758047615/Legacy_lngu1r.mp4"
-          title="Legacy"
-          subtitle="Raftar and kashmr"
-          titleColor="text-white"
+        {/* Background image behind project 1 (blurred, non-interactive) */}
+        <img
+          src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758210854/unnamed_rkr7do.png"
+          alt="project-bg"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: 'blur(6px) brightness(0.9)',
+            opacity: 0.95,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}
         />
+
+        <div className="relative z-20 w-full h-full flex items-center justify-center">
+          <InteractiveVideo 
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1758047615/Legacy_lngu1r.mp4"
+            title="Legacy"
+            subtitle="Raftar and kashmr"
+            titleColor="text-white"
+            defaultZoom={true}
+            zoomScale={1.7}
+            showZoomButton={false}
+          />
+        </div>
       </div>
       <div ref={addToRefs} className="project2 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
            style={{
@@ -358,7 +390,19 @@ function NewProject() {
              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
            }}>
+               <img
+          src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758212073/1e993446-0780-4f01-91e5-bc8eaf966e95_fzsnbs.png"
+          alt="project-bg"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: 'blur(6px) brightness(0.9)',
+            opacity: 0.95,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}
+        />
         <InteractiveVideo 
+        
           src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
           title="Project 2"
           subtitle="Mobile App"
@@ -375,12 +419,24 @@ function NewProject() {
              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
            }}>
+                   <img
+          src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758212388/f281833f-81dc-4dec-971e-4f8ec8368a4e_kvyfgf.png"
+          alt="project-bg"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: 'blur(6px) brightness(0.9)',
+            opacity: 0.95,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}
+        />
         <InteractiveVideo 
           src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
           title="Project 3"
           subtitle="E-commerce"
           titleColor="text-white"
         />
+        
       </div>
       <div ref={addToRefs} className="project4 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
            style={{

@@ -54,22 +54,32 @@ function Personal2() {
   return (
     <div className="relative z-60">
       {/* Background image (covers full viewport) */}
-      
+      <img
+        src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758212388/f281833f-81dc-4dec-971e-4f8ec8368a4e_kvyfgf.png"
+        alt="personal-bg"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          filter: 'blur(8px) brightness(0.6)',
+          opacity: 0.95,
+          pointerEvents: 'none',
+          zIndex: 0
+        }}
+      />
 
       {/* Subtle glassmorphism backdrop with gradient blending edges */}
       <div
         className="absolute inset-0 -z-5"
         style={{
-          // backgroundColor: 'rgba(255,255,255,0.03)',
-          // backdropFilter: 'blur(6px)',
-          // WebkitBackdropFilter: 'blur(6px)',
-          // maskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
-          // WebkitMaskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
+          backgroundColor: 'rgba(255,255,255,0.03)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          maskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
         }}
       />
 
       {/* Content container */}
-      <div className="min-h-screen w-full relative z-10">
+      <div className="min-h-screen w-full relative z-10 pb-12">
         {/* Content with padding */}
         <div className="p-3 sm:p-4 lg:p-6">
           {/* Page heading */}
