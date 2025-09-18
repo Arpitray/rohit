@@ -79,6 +79,25 @@ const LazyVideo = ({
     <div ref={videoRef} className={wrapperClass}>
       {isInView && (
         <>
+          {/* Blurred background video when using object-contain to fill letterbox areas */}
+          {fit === 'contain' && (
+            <video
+              className="absolute top-0 left-0 w-full h-full object-cover object-center"
+              src={src}
+              autoPlay={true}
+              muted={true}
+              playsInline={true}
+              loop={true}
+              style={{
+                filter: 'blur(20px) brightness(0.3)',
+                transform: 'scale(1.1)', // slightly larger to hide blur edges
+                zIndex: 0,
+                opacity: isLoaded ? 1 : 0,
+                transition: 'opacity 0.3s ease-in-out'
+              }}
+            />
+          )}
+
           {showLoader && !isLoaded && !hasError && (
             <div className={loaderClassName}>
               <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -102,7 +121,8 @@ const LazyVideo = ({
             onError={handleError}
             style={{ 
               opacity: isLoaded ? 1 : 0,
-              transition: 'opacity 0.3s ease-in-out'
+              transition: 'opacity 0.3s ease-in-out',
+              zIndex: fit === 'contain' ? 10 : 'auto' // ensure main video is above background
             }}
             // ensure autoplay, muted and playsInline are set explicitly
             autoPlay={true}

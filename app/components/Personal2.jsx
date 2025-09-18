@@ -4,17 +4,34 @@ import React from "react";
 import TemplateColumn from "./TemplateColumn";
 
 // Default video source (replace with your own video in /public or remote URL)
-const VIDEO_SRC = "https://res.cloudinary.com/dsjjdnife/video/upload/v1753776808/vid5_zgcqro.mp4";
+const VIDEO_SRC = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221382/Jackboys_2_travisscott_travisscott_travisscottedits_travisscottfans_jackboys_3danimatio_mwcf5t";
+const VIDEO_SRC2 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758217507/I_AM_MUSC_-_playboicarti_opium_00pium_riseofcarti_playboicarti_playboicartiedits_iammusic_ig7ceh";
+const VIDEO_SRC3 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221513/timeless_dolfia";
+const VIDEO_SRC4 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221767/weeknd_rudubi";
+const VIDEO_SRC5 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221922/skate_o9ombj";
+const VIDEO_SRC6 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758222339/sangeet_sintdw";
+const VIDEO_SRC7 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758222654/dolla_qjius6";
+const VIDEO_SRC8 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758222673/showreel_c8gkxq";
+const VIDEO_SRC9 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758222842/butterfly_fw6fcm";
+const VIDEO_SRC10 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758222888/mahadev_g8gm6x";
+const VIDEO_SRC11 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758223034/maut_jr4nam";
 
 function Personal2() {
   // Define video configurations with different sizes
   const videoConfigs = [
-    { id: 1, colSpan: 2, rowSpan: 2, src: VIDEO_SRC }, // Large featured video
-    { id: 2, colSpan: 1, rowSpan: 2, src: VIDEO_SRC }, // Regular video
-    { id: 3, colSpan: 1, rowSpan: 2, src: VIDEO_SRC }, // Regular video
-    { id: 4, colSpan: 2, rowSpan: 2, src: VIDEO_SRC }, // Wide video
-    { id: 5, colSpan: 1, rowSpan: 2, src: VIDEO_SRC }, // Tall video
-    { id: 6, colSpan: 1, rowSpan: 2, src: VIDEO_SRC },
+    // Add or edit the `defaultZoom`, `zoomScale`, and `showZoomButton` fields here to control
+    // zoom behavior per-video directly from the `Personal2` component.
+    { id: 1, colSpan: 2, rowSpan: 3, src: VIDEO_SRC, defaultZoom: true, zoomScale: 1.34, showZoomButton: false }, 
+    { id: 2, colSpan: 1, rowSpan: 3, src: VIDEO_SRC2, defaultZoom: true, zoomScale: 1.1, showZoomButton: false }, 
+    { id: 3, colSpan: 1, rowSpan: 3, src: VIDEO_SRC3, defaultZoom: true, zoomScale: 1.1, showZoomButton: false }, 
+    { id: 4, colSpan: 1, rowSpan: 3, src: VIDEO_SRC4, defaultZoom: true, zoomScale: 1.6, showZoomButton: false }, 
+    { id: 5, colSpan: 1, rowSpan: 3, src: VIDEO_SRC5, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
+    { id: 6, colSpan: 1, rowSpan: 3, src: VIDEO_SRC6, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
+    { id: 7, colSpan: 1, rowSpan: 3, src: VIDEO_SRC7, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
+    { id: 8, colSpan: 1, rowSpan: 3, src: VIDEO_SRC8, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
+    { id: 9, colSpan: 1, rowSpan: 3, src: VIDEO_SRC9, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
+    { id: 10, colSpan: 1, rowSpan: 3, src: VIDEO_SRC10, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
+    { id: 11, colSpan: 1, rowSpan: 3, src: VIDEO_SRC11, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
   ];
 
   // Function to organize videos into responsive rows
@@ -55,11 +72,11 @@ function Personal2() {
     <div className="relative z-60">
       {/* Background image (covers full viewport) */}
       <img
-        src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758212388/f281833f-81dc-4dec-971e-4f8ec8368a4e_kvyfgf.png"
+        src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758224595/9a760c179266081.64f6eab350316_dix0po.webp"
         alt="personal-bg"
         className="absolute inset-0 w-full h-full object-cover"
         style={{
-          filter: 'blur(8px) brightness(0.6)',
+          filter: 'blur(1px) brightness(0.6)',
           opacity: 0.95,
           pointerEvents: 'none',
           zIndex: 0
@@ -79,7 +96,7 @@ function Personal2() {
       />
 
       {/* Content container */}
-      <div className="min-h-screen w-full relative z-10 pb-12">
+      <div className="min-h-screen w-full relative z-10 pb-22">
         {/* Content with padding */}
         <div className="p-3 sm:p-4 lg:p-6">
           {/* Page heading */}
@@ -116,6 +133,9 @@ function Personal2() {
                           colSpan={video.colSpan}
                           rowSpan={video.rowSpan}
                           className="w-full h-full object-cover rounded-md sm:rounded-lg overflow-hidden shadow-lg"
+                          defaultZoom={video.defaultZoom}
+                          zoomScale={video.zoomScale}
+                          showZoomButton={video.showZoomButton}
                         />
                       </div>
                     ))}

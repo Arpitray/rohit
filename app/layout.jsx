@@ -9,6 +9,7 @@ import NewProject from "./components/NewProject";
 import TextProject from "./TextProject";
 import Personal2 from "./components/Personal2";
 import Contact from "./components/Contact";
+import CustomCursor from './components/CustomCursor';
 
 
 export default function RootLayout() {
@@ -17,6 +18,7 @@ export default function RootLayout() {
       <body
         className={`overflow-x-hidden`}
       >
+        <CustomCursor />
         <LenisProvider>
           {/* Fixed Landing Canvas Background */}
           <Home />

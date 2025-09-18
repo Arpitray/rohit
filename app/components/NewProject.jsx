@@ -151,6 +151,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
     <div 
       ref={containerRef}
       className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg cursor-pointer"
+      data-interactive-video="true"
     >
       <div
         ref={videoRef}
@@ -346,6 +347,7 @@ function NewProject() {
       data-section="newproject"
     >
       <div ref={addToRefs} className="project1 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+           data-project-link="https://github.com/project1"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
              backdropFilter: 'blur(20px)',
@@ -381,6 +383,7 @@ function NewProject() {
         </div>
       </div>
       <div ref={addToRefs} className="project2 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+           data-project-link="https://github.com/project2"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
              backdropFilter: 'blur(20px)',
@@ -403,13 +406,14 @@ function NewProject() {
         />
         <InteractiveVideo 
         
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776820/vid11_m3t9ob.mp4"
           title="Project 2"
           subtitle="Mobile App"
           titleColor="text-white"
         />
       </div>
       <div ref={addToRefs} className="project3 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+           data-project-link="https://example.com/project3"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
              backdropFilter: 'blur(20px)',
@@ -439,6 +443,7 @@ function NewProject() {
         
       </div>
       <div ref={addToRefs} className="project4 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+           data-project-link="https://example.com/project4"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
              backdropFilter: 'blur(20px)',
@@ -448,14 +453,26 @@ function NewProject() {
              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
            }}>
+             <img
+          src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758223790/unnamed_soecjn.png"
+          alt="project-bg"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: 'blur(6px) brightness(0.9)',
+            opacity: 0.95,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}
+        />
         <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776816/vid14_rvtcvi.mp4"
           title="Project 4"
           subtitle="UI/UX Design"
           titleColor="text-white"
         />
       </div>
       <div ref={addToRefs} className="project5 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+           data-project-link="https://example.com/project5"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
              backdropFilter: 'blur(20px)',
@@ -465,14 +482,26 @@ function NewProject() {
              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
            }}>
+             <img
+          src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758224112/unnamed_b9ncst.png"
+          alt="project-bg"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: 'blur(6px) brightness(0.9)',
+            opacity: 0.95,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}
+        />
         <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776816/vid10_zpxivm.mp4"
           title="Project 5"
           subtitle="Brand Identity"
           titleColor="text-white"
         />
       </div>
       <div ref={addToRefs} className="project6 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+           data-project-link="https://example.com/project6"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
              backdropFilter: 'blur(20px)',
@@ -482,8 +511,19 @@ function NewProject() {
              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)',
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 6%, black 94%, transparent 100%)'
            }}>
+             <img
+          src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758224183/unnamed_x8jeay.png"
+          alt="project-bg"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: 'blur(6px) brightness(0.9)',
+            opacity: 0.95,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}
+        />
         <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776810/vid8_anmfk0.mp4"
           title="Project 6"
           subtitle="Digital Marketing"
           titleColor="text-white"
