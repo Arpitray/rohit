@@ -8,6 +8,7 @@ import Project from "./components/Project";
 import NewProject from "./components/NewProject";
 import TextProject from "./TextProject";
 import Personal2 from "./components/Personal2";
+import Contact from "./components/Contact";
 
 
 export default function RootLayout() {
@@ -34,7 +35,9 @@ export default function RootLayout() {
             <div className="h-screen bg-transparent"></div>
             {/* Personal2 appears after horizontal scrolling completes */}
             <Personal2 />
-          </div>
+ <div className="h-screen bg-transparent"></div>
+            {/* Personal2 appears after horizontal scrolling completes */}
+            <Contact />          </div>
         </LenisProvider>
       </body>
     </html>
