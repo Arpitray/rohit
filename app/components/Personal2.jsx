@@ -18,6 +18,11 @@ const VIDEO_SRC11 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_
 
 function Personal2() {
   const [screenSize, setScreenSize] = useState('desktop');
+  // Client-only touch detection to show mobile play overlay
+  const [isTouch, setIsTouch] = useState(false);
+  // playSignal increments will be forwarded to videos to trigger user-initiated play on mobile
+  const [playSignal, setPlaySignal] = useState(0);
+  const [hasPlayedOnMobile, setHasPlayedOnMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -29,6 +34,13 @@ function Personal2() {
         setScreenSize('desktop');
       }
     };
+
+    // detect touch capability on client
+    try {
+      setIsTouch(typeof window !== 'undefined' && 'ontouchstart' in window);
+    } catch (e) {
+      setIsTouch(false);
+    }
 
     handleResize(); // Set initial size
     window.addEventListener('resize', handleResize);
@@ -192,6 +204,7 @@ function Personal2() {
                           defaultZoom={video.defaultZoom}
                           zoomScale={video.zoomScale}
                           showZoomButton={video.showZoomButton}
+                          playSignal={playSignal}
                         />
                       </div>
                     ))}
@@ -202,6 +215,25 @@ function Personal2() {
           </div>
         </div>
       </div>
+
+      {/* Mobile-only play overlay: visible on touch devices before user triggers playback */}
+      {isTouch && !hasPlayedOnMobile && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          onClick={() => {
+            // increment playSignal to notify all TemplateColumn/LazyVideo instances
+            setPlaySignal(s => s + 1);
+            setHasPlayedOnMobile(true);
+          }}
+        >
+          <button
+            aria-label="Play videos"
+            className="px-6 py-3 rounded-full bg-white/90 text-black font-semibold shadow-lg"
+          >
+            Tap to play videos
+          </button>
+        </div>
+      )}
     </div>
   );
 }

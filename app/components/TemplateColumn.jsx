@@ -21,14 +21,25 @@ const TemplateColumn = ({
   defaultZoom = false,
   zoomScale = 1.6,
   showZoomButton = false,
+  // playSignal forwarded to LazyVideo (increment to trigger play on mobile)
+  playSignal = 0,
 }) => {
   // local state for zoom and mouse-based parallax
   const containerRef = useRef(null);
   const videoWrapRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom);
+  // Detect touch support on client only to avoid SSR reference to `window`.
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
+    // Run only on client: detect touch-capable devices.
+    try {
+      setIsTouch(typeof window !== 'undefined' && 'ontouchstart' in window);
+    } catch (e) {
+      setIsTouch(false);
+    }
+
     const container = containerRef.current;
     if (!container) return;
 
@@ -69,7 +80,19 @@ const TemplateColumn = ({
   return (
     <div ref={containerRef} className={`relative w-full h-full overflow-hidden ${className}`}>
       <div ref={videoWrapRef} className="w-full h-full">
-        <LazyVideo src={src} autoplay loop muted playsInline showLoader={showLoader} className="w-full h-full relative" />
+        {/* Disable autoplay and preload on touch devices to save bandwidth. */}
+        <LazyVideo
+          src={src}
+          fit="cover"
+          preload={isTouch ? 'none' : 'metadata'}
+          shouldAutoplay={!isTouch}
+          playSignal={playSignal}
+          loop
+          muted
+          playsInline
+          showLoader={showLoader}
+          className="w-full h-full relative"
+        />
       </div>
 
       {showZoomButton && (
