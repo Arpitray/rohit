@@ -21,12 +21,10 @@ export default function RootLayout() {
       >
         <CustomCursor />
         <LenisProvider>
-          {/* Fixed Landing Canvas Background */}
           <Home />
 
-          {/* Scrollable Content Layer */}
           <div className="relative z-10">
-            {/* Add spacer to allow scrolling past the fixed landing */}
+
             <div className="h-screen bg-transparent"></div>
 
             <About />
