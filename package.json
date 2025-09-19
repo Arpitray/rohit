@@ -12,6 +12,7 @@
     "@react-three/drei": "^10.7.5",
     "@react-three/fiber": "^9.3.0",
     "@studio-freight/lenis": "^1.0.42",
+    "@vercel/speed-insights": "^1.2.0",
     "framer-motion": "^12.23.12",
     "gsap": "^3.13.0",
     "next": "15.5.2",

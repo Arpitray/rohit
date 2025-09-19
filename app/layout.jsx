@@ -1,5 +1,6 @@
 
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import Landing from "./Landing";
 import Home from "./page";
 import About from "./About";
