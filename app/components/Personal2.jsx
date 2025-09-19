@@ -18,11 +18,8 @@ const VIDEO_SRC11 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_
 
 function Personal2() {
   const [screenSize, setScreenSize] = useState('desktop');
-  // Client-only touch detection to show mobile play overlay
-  const [isTouch, setIsTouch] = useState(false);
-  // playSignal increments will be forwarded to videos to trigger user-initiated play on mobile
+  // playSignal increments will be forwarded to videos to trigger programmatic play where needed
   const [playSignal, setPlaySignal] = useState(0);
-  const [hasPlayedOnMobile, setHasPlayedOnMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,12 +32,7 @@ function Personal2() {
       }
     };
 
-    // detect touch capability on client
-    try {
-      setIsTouch(typeof window !== 'undefined' && 'ontouchstart' in window);
-    } catch (e) {
-      setIsTouch(false);
-    }
+    // nothing mobile-specific here any longer
 
     handleResize(); // Set initial size
     window.addEventListener('resize', handleResize);
@@ -174,7 +166,7 @@ function Personal2() {
                 <div key={rowIndex} className="w-full">
                   {/* Dynamic grid based on videos in this row */}
                   <div
-                    className={`grid gap-2 sm:gap-3 md:gap-4 lg:gap-6 [--row-h:300px] sm:[--row-h:140px] md:[--row-h:160px] lg:[--row-h:192px] xl:[--row-h:310px] 
+                    className={`grid gap-2 sm:gap-3 md:gap-4 lg:gap-6 [--row-h:280px] sm:[--row-h:200px] md:[--row-h:160px] lg:[--row-h:192px] xl:[--row-h:310px] 
                       ${isMobileFirstRow ? 'grid-cols-1' : ''} 
                       ${isMobilePairRow ? 'grid-cols-2' : ''} 
                       ${screenSize === 'tablet' ? 'grid-cols-2' : ''} 
@@ -196,16 +188,35 @@ function Personal2() {
                           gridRow: screenSize === 'desktop' ? `span ${video.rowSpan || 1}` : 'span 1',
                         }}
                       >
-                        <TemplateColumn
-                          src={video.src}
-                          colSpan={video.colSpan}
-                          rowSpan={video.rowSpan}
-                          className="w-full h-full object-cover rounded-md sm:rounded-lg overflow-hidden shadow-lg"
-                          defaultZoom={video.defaultZoom}
-                          zoomScale={video.zoomScale}
-                          showZoomButton={video.showZoomButton}
-                          playSignal={playSignal}
-                        />
+                        {screenSize === 'mobile' ? (
+                          // Direct video element for mobile - no lazy loading
+                          <video
+                            src={video.src}
+                            className="w-full h-full object-cover rounded-md sm:rounded-lg overflow-hidden shadow-lg"
+                            muted
+                            loop
+                            playsInline
+                            controls={false}
+                            preload="metadata"
+                            autoPlay={true}
+                            style={{
+                              backgroundColor: '#000',
+                              display: 'block'
+                            }}
+                          />
+                        ) : (
+                          // Use TemplateColumn with LazyVideo for desktop/tablet
+                          <TemplateColumn
+                            src={video.src}
+                            colSpan={video.colSpan}
+                            rowSpan={video.rowSpan}
+                            className="w-full h-full object-cover rounded-md sm:rounded-lg overflow-hidden shadow-lg"
+                            defaultZoom={video.defaultZoom}
+                            zoomScale={video.zoomScale}
+                            showZoomButton={video.showZoomButton}
+                            playSignal={playSignal}
+                          />
+                        )}
                       </div>
                     ))}
                   </div>
@@ -216,24 +227,7 @@ function Personal2() {
         </div>
       </div>
 
-      {/* Mobile-only play overlay: visible on touch devices before user triggers playback */}
-      {isTouch && !hasPlayedOnMobile && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
-          onClick={() => {
-            // increment playSignal to notify all TemplateColumn/LazyVideo instances
-            setPlaySignal(s => s + 1);
-            setHasPlayedOnMobile(true);
-          }}
-        >
-          <button
-            aria-label="Play videos"
-            className="px-6 py-3 rounded-full bg-white/90 text-black font-semibold shadow-lg"
-          >
-            Tap to play videos
-          </button>
-        </div>
-      )}
+      {/* Mobile overlay removed: videos will appear directly on mobile */}
     </div>
   );
 }

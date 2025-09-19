@@ -12,43 +12,52 @@ function About() {
   const contentRef = useRef(null)
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Use a scrubbed ScrollTrigger so the entrance animations are fully controlled by scroll progress.
-      // This replaces the previous toggleActions/duration-driven timeline. Durations here are
-      // smaller because scrub maps the timeline progress to scroll.
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: rootRef.current,
-          start: 'top 80%',
-          end: 'bottom 60%',
-          scrub: true,
-          // markers: true,
-        }
-      })
+    // Skip GSAP ScrollTrigger initialization on touch devices (mobile) to avoid mobile triggers
+    let ctx;
+    try {
+      const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+      if (!isTouch) {
+        ctx = gsap.context(() => {
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: rootRef.current,
+              start: 'top 80%',
+              end: 'bottom 60%',
+              scrub: true,
+              // markers: true,
+            }
+          })
 
-      // move content up and scale as the user scrolls into the section
-      tl.fromTo(
-        contentRef.current,
-        { y: 20, scale: 0.92, autoAlpha: 0.95 },
-        { y: 0, scale: 1, autoAlpha: 1, duration: 0.6, ease: 'power3.out' }
-      );
+          // move content up and scale as the user scrolls into the section
+          tl.fromTo(
+            contentRef.current,
+            { y: 20, scale: 0.92, autoAlpha: 0.95 },
+            { y: 0, scale: 1, autoAlpha: 1, duration: 0.6, ease: 'power3.out' }
+          );
 
-      // ProfileCard slides in from left; scrub will control when it is fully visible
-      tl.from(
-        contentRef.current.querySelectorAll('.profile-card-container'),
-        { x: -100, autoAlpha: 0, duration: 0.5, ease: 'power3.out' },
-        '<0.1'
-      );
+          // ProfileCard slides in from left; scrub will control when it is fully visible
+          tl.from(
+            contentRef.current.querySelectorAll('.profile-card-container'),
+            { x: -100, autoAlpha: 0, duration: 0.5, ease: 'power3.out' },
+            '<0.1'
+          );
 
-      // Text children animate with a gentle stagger as scroll progresses
-      tl.from(
-        contentRef.current.querySelectorAll('.te > *'),
-        { y: 20, autoAlpha: 0, stagger: 0.12, duration: 0.45, ease: 'power3.out' },
-        '<0.05'
-      );
-    }, rootRef)
+          // Text children animate with a gentle stagger as scroll progresses
+          tl.from(
+            contentRef.current.querySelectorAll('.te > *'),
+            { y: 20, autoAlpha: 0, stagger: 0.12, duration: 0.45, ease: 'power3.out' },
+            '<0.05'
+          );
+        }, rootRef)
+      }
+    } catch (e) {
+      // If anything goes wrong (e.g. window undefined), just skip GSAP for safety on this section
+      ctx = undefined
+    }
 
-    return () => ctx.revert()
+    return () => {
+      if (ctx && ctx.revert) ctx.revert()
+    }
   }, [])
 
   return (

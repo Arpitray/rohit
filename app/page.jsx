@@ -355,9 +355,6 @@ export default function Home() {
 
   {/* subtle dark overlay so glass sections read better */}
   <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.35)' }} />
-
-        {/* Modern glassmorphism overlay above the video - frosted glass effect.
-            The 3D model canvases are rendered outside this container with higher z-index, so they remain sharp. */}
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none"
