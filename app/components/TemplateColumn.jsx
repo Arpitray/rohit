@@ -21,6 +21,8 @@ const TemplateColumn = ({
   defaultZoom = false,
   zoomScale = 1.6,
   showZoomButton = false,
+  // playSignal forwarded to LazyVideo (increment to trigger play on mobile)
+  playSignal = 0,
 }) => {
   // local state for zoom and mouse-based parallax
   const containerRef = useRef(null);
@@ -84,6 +86,7 @@ const TemplateColumn = ({
           fit="cover"
           preload={isTouch ? 'none' : 'metadata'}
           shouldAutoplay={!isTouch}
+          playSignal={playSignal}
           loop
           muted
           playsInline

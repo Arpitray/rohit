@@ -15,6 +15,8 @@ const LazyVideo = ({
   fit = 'contain', // 'cover' | 'contain'
   preload = 'metadata', // 'auto' | 'metadata' | 'none'
   shouldAutoplay = true,
+  // playSignal: integer that, when incremented, forces a play attempt (useful for mobile user-initiated play)
+  playSignal = 0,
   ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -60,6 +62,30 @@ const LazyVideo = ({
       }
     }
   }, [isInView, shouldAutoplay]);
+
+  // If playSignal increments (user tapped play on mobile), force the video to render and try to play
+  const playSignalRef = useRef(playSignal);
+  useEffect(() => {
+    if (playSignal === playSignalRef.current) return;
+    // store new value
+    playSignalRef.current = playSignal;
+
+    const el = videoElRef.current;
+    if (!el) {
+      // If not rendered yet, mark in-view so it mounts; IntersectionObserver will handle playback when it becomes visible
+      setIsInView(true);
+      return;
+    }
+
+    try {
+      // user-initiated play should allow sound if desired; keep muted to match autoplay behavior
+      el.muted = true;
+      const p = el.play();
+      if (p && p.then) p.catch(() => {});
+    } catch (e) {
+      // ignore
+    }
+  }, [playSignal]);
 
   const handleLoadedData = () => {
     setIsLoaded(true);
