@@ -21,10 +21,10 @@ function Personal2() {
   const videoConfigs = [
     // Add or edit the `defaultZoom`, `zoomScale`, and `showZoomButton` fields here to control
     // zoom behavior per-video directly from the `Personal2` component.
-    { id: 1, colSpan: 2, rowSpan: 3, src: VIDEO_SRC, defaultZoom: true, zoomScale: 1.34, showZoomButton: false }, 
+    { id: 1, colSpan: 2, rowSpan: 3, src: VIDEO_SRC, defaultZoom: true, zoomScale: 1.17, showZoomButton: false }, 
     { id: 2, colSpan: 1, rowSpan: 3, src: VIDEO_SRC2, defaultZoom: true, zoomScale: 1.1, showZoomButton: false }, 
     { id: 3, colSpan: 1, rowSpan: 3, src: VIDEO_SRC3, defaultZoom: true, zoomScale: 1.1, showZoomButton: false }, 
-    { id: 4, colSpan: 1, rowSpan: 3, src: VIDEO_SRC4, defaultZoom: true, zoomScale: 1.6, showZoomButton: false }, 
+    { id: 4, colSpan: 1, rowSpan: 3, src: VIDEO_SRC4, defaultZoom: true, zoomScale: 1.2, showZoomButton: false }, 
     { id: 5, colSpan: 1, rowSpan: 3, src: VIDEO_SRC5, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
     { id: 6, colSpan: 1, rowSpan: 3, src: VIDEO_SRC6, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
     { id: 7, colSpan: 1, rowSpan: 3, src: VIDEO_SRC7, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
@@ -69,7 +69,7 @@ function Personal2() {
   const videoRows = organizeVideosIntoRows(videoConfigs);
 
   return (
-    <div className="relative z-60">
+    <div className="relative z-60 px-22">
       {/* Background image (covers full viewport) */}
       <img
         src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758224595/9a760c179266081.64f6eab350316_dix0po.webp"
@@ -113,7 +113,7 @@ function Personal2() {
                 <div key={rowIndex} className="w-full">
                   {/* Dynamic grid based on videos in this row */}
                   <div
-                    className={`grid gap-3 sm:gap-4 lg:gap-6 [--row-h:96px] sm:[--row-h:128px] md:[--row-h:160px] lg:[--row-h:192px] xl:[--row-h:224px]`}
+                    className={`grid gap-3 sm:gap-4 lg:gap-6 [--row-h:96px] sm:[--row-h:128px] md:[--row-h:160px] lg:[--row-h:192px] xl:[--row-h:310px]`}
                     style={{
                       gridTemplateColumns: `repeat(${totalCols}, 1fr)`,
                       gridAutoRows: 'var(--row-h)'
