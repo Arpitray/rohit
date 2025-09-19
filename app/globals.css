@@ -100,3 +100,35 @@
     height: 28px;
     background: rgba(220,220,220,0.95);
 }
+
+/* Responsive cursor behavior - hide custom cursor on mobile/tablet */
+@media (max-width: 1024px) {
+    .hide-native-cursor, .hide-native-cursor * {
+        cursor: auto !important;
+    }
+    
+    .custom-cursor-dot {
+        display: none;
+    }
+}
+
+/* Ensure proper touch interaction on mobile */
+@media (hover: none) and (pointer: coarse) {
+    .hide-native-cursor, .hide-native-cursor * {
+        cursor: auto !important;
+    }
+    
+    .custom-cursor-dot {
+        display: none;
+    }
+}
+
+/* Reduce contact background image size on small screens (mobile) */
+@media (max-width: 639px) {
+    #contact {
+        background-image: none !important; /* remove background image on mobile */
+        background-size: 80% !important; /* fallback if inline persists */
+        background-position: center top !important;
+        background-repeat: no-repeat !important;
+    }
+}

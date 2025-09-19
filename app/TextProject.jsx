@@ -44,7 +44,8 @@ function TextProject() {
   return (
     <div 
       ref={containerRef} 
-      className='min-h-screen w-full flex items-center justify-center relative font-["techb"] z-30 bg-[#0b0b0b]'
+      className='min-
+      h-screen w-full flex items-center justify-center relative font-["techb"] z-30 bg-[#0b0b0b]'
       style={{
         // Use a neutral dark background color as fallback if image fails
         backgroundColor: 'rgba(10,10,10,1)',
@@ -72,17 +73,17 @@ function TextProject() {
       {/* Dark translucent overlay to keep text readable */}
       <div className="absolute inset-0 bg-black/40 z-20 pointer-events-none" />
 
-      <div ref={contentRef} className="transform-origin-center font-['clashB'] leading-4 relative z-30"
+      <div ref={contentRef} className="transform-origin-center font-['clashB'] leading-4 relative z-30 px-4 sm:px-8 py-8 md:py-0"
            style={{
-             padding: '2rem',
+             padding: '1rem',
            }}>
-        <h1 className='text-8xl font-bold text-center text-white' 
+        <h1 className='text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-center text-white' 
             style={{ 
               textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.5)' 
             }}>
           Selected Projects
         </h1>
-        <p className='text-2xl text-center mt-6 text-white opacity-90'
+        <p className='text-base sm:text-lg md:text-xl lg:text-2xl text-center mt-3 sm:mt-6 text-white opacity-90'
            style={{ 
              textShadow: '1px 1px 2px rgba(0, 0, 0, 0.7), 0 0 10px rgba(0, 0, 0, 0.4)' 
            }}>

@@ -30,8 +30,8 @@ export default function RootLayout() {
 
             <About />
             <TextProject />
-            {/* Extended spacer div to provide scroll distance for horizontal NewProject scrolling */}
-            <div id="horizontal-scroll-trigger" className="h-[500vh] bg-transparent"></div>
+            {/* Extended spacer div to provide scroll distance for horizontal NewProject scrolling - smaller on mobile */}
+            <div id="horizontal-scroll-trigger" className="h-[200vh] sm:h-[300vh] lg:h-[500vh] bg-transparent"></div>
             <NewProject />
             {/* Spacer to ensure PersonalProject appears after horizontal scrolling completes */}
             <div className="h-screen bg-transparent"></div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import TemplateColumn from "./TemplateColumn";
 
 // Default video source (replace with your own video in /public or remote URL)
@@ -17,6 +17,24 @@ const VIDEO_SRC10 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_
 const VIDEO_SRC11 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758223034/maut_jr4nam";
 
 function Personal2() {
+  const [screenSize, setScreenSize] = useState('desktop');
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setScreenSize('mobile');
+      } else if (window.innerWidth < 1024) {
+        setScreenSize('tablet');
+      } else {
+        setScreenSize('desktop');
+      }
+    };
+
+    handleResize(); // Set initial size
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Define video configurations with different sizes
   const videoConfigs = [
     // Add or edit the `defaultZoom`, `zoomScale`, and `showZoomButton` fields here to control
@@ -36,6 +54,33 @@ function Personal2() {
 
   // Function to organize videos into responsive rows
   const organizeVideosIntoRows = (videos) => {
+    if (screenSize === 'mobile') {
+      // Mobile: First video full width, then pairs of portrait videos
+      const rows = [];
+      
+      // First video gets its own row (full width)
+      if (videos.length > 0) {
+        rows.push([videos[0]]);
+      }
+      
+      // Remaining videos in pairs (2 per row)
+      const remainingVideos = videos.slice(1);
+      for (let i = 0; i < remainingVideos.length; i += 2) {
+        const pair = remainingVideos.slice(i, i + 2);
+        rows.push(pair);
+      }
+      
+      return rows;
+    } else if (screenSize === 'tablet') {
+      // Tablet: 2 videos per row
+      const rows = [];
+      for (let i = 0; i < videos.length; i += 2) {
+        rows.push(videos.slice(i, i + 2));
+      }
+      return rows;
+    }
+    
+    // Desktop: original complex grid layout
     const rows = [];
     let currentRow = [];
     let currentRowSpaceUsed = 0;
@@ -69,7 +114,7 @@ function Personal2() {
   const videoRows = organizeVideosIntoRows(videoConfigs);
 
   return (
-    <div className="relative z-60 px-22">
+    <div className="relative z-60 px-4 sm:px-8 md:px-16 lg:px-22">
       {/* Background image (covers full viewport) */}
       <img
         src="https://res.cloudinary.com/dsjjdnife/image/upload/v1758224595/9a760c179266081.64f6eab350316_dix0po.webp"
@@ -98,34 +143,45 @@ function Personal2() {
       {/* Content container */}
       <div className="min-h-screen w-full relative z-10 pb-22">
         {/* Content with padding */}
-        <div className="p-3 sm:p-4 lg:p-6">
+        <div className="p-3 sm:p-4 md:p-6 lg:p-6">
           {/* Page heading */}
-          <h2 className="text-2xl sm:text-3xl lg:text-6xl font-bold text-center font-['clashB'] mt-12 tracking-widest text-white mb-4 md:mb-12">Personal projects</h2>
+          <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-6xl font-bold text-center font-['clashB'] mt-6 sm:mt-8 md:mt-10 lg:mt-12 tracking-widest text-white mb-3 sm:mb-6 md:mb-8 lg:mb-12">Personal projects</h2>
 
           {/* Responsive video rows container */}
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+          <div className="space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-6">
             {videoRows.map((row, rowIndex) => {
               // total columns is the sum of colSpan values in this row
               const totalCols = row.reduce((s, v) => s + (v.colSpan || 1), 0);
               const maxRowSpan = Math.max(...row.map(v => v.rowSpan || 1));
+              
+              // For mobile: determine if this is the first row (full width) or pair row
+              const isMobileFirstRow = screenSize === 'mobile' && rowIndex === 0;
+              const isMobilePairRow = screenSize === 'mobile' && rowIndex > 0;
 
               return (
                 <div key={rowIndex} className="w-full">
                   {/* Dynamic grid based on videos in this row */}
                   <div
-                    className={`grid gap-3 sm:gap-4 lg:gap-6 [--row-h:96px] sm:[--row-h:128px] md:[--row-h:160px] lg:[--row-h:192px] xl:[--row-h:310px]`}
+                    className={`grid gap-2 sm:gap-3 md:gap-4 lg:gap-6 [--row-h:300px] sm:[--row-h:140px] md:[--row-h:160px] lg:[--row-h:192px] xl:[--row-h:310px] 
+                      ${isMobileFirstRow ? 'grid-cols-1' : ''} 
+                      ${isMobilePairRow ? 'grid-cols-2' : ''} 
+                      ${screenSize === 'tablet' ? 'grid-cols-2' : ''} 
+                      ${screenSize === 'desktop' ? '' : ''}`}
                     style={{
-                      gridTemplateColumns: `repeat(${totalCols}, 1fr)`,
+                      gridTemplateColumns: screenSize === 'desktop' ? `repeat(${totalCols}, 1fr)` : undefined,
                       gridAutoRows: 'var(--row-h)'
                     }}
                   >
                     {row.map((video) => (
                       <div
                         key={video.id}
-                        className="relative min-h-0 min-w-0"
+                        className={`relative min-h-0 min-w-0 
+                          ${isMobileFirstRow ? 'col-span-1' : ''} 
+                          ${isMobilePairRow ? 'col-span-1' : ''}`}
                         style={{
-                          gridColumn: `span ${video.colSpan || 1}`,
-                          gridRow: `span ${video.rowSpan || 1}`,
+                          // On desktop, preserve original grid spans
+                          gridColumn: screenSize === 'desktop' ? `span ${video.colSpan || 1}` : undefined,
+                          gridRow: screenSize === 'desktop' ? `span ${video.rowSpan || 1}` : 'span 1',
                         }}
                       >
                         <TemplateColumn

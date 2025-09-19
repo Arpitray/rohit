@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+### Quick Vercel deployment checklist
+
+- Push your code to a Git provider (GitHub, GitLab, Bitbucket).
+- In Vercel, import the repository and select the branch you want to deploy (e.g., `mobile`).
+- Make sure build command is `npm run build` and the output directory is handled by Next.js (default).
+- If you use Cloudinary remote media (images/videos), confirm `next.config.mjs` contains the `images.remotePatterns` entry for `res.cloudinary.com` (already added).
+- Optionally set environment variables in Project Settings if you later need private API keys.
+
+If you want I can also add a small `vercel` GitHub Action or connect automatic branch previews — tell me which branch you want to auto-deploy and I'll add the configuration.

@@ -150,7 +150,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   return (
     <div 
       ref={containerRef}
-      className="w-[90%] h-[90%] relative overflow-hidden rounded-lg shadow-lg cursor-pointer"
+      className="w-[90%] sm:w-[85%] md:w-[90%] h-[60%] sm:h-[70%] md:h-[90%] relative overflow-hidden rounded-lg shadow-lg cursor-pointer"
       data-interactive-video="true"
     >
       <div
@@ -191,10 +191,10 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       )}
       
       {/* Title and subtitle positioned at bottom-left */}
-      <div className="absolute bottom-8 left-8 z-20 pointer-events-none overflow-hidden">
+      <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-4 sm:left-6 md:left-8 z-20 pointer-events-none overflow-hidden">
         <h2 
           ref={titleRef}
-          className={`text-4xl md:text-5xl lg:text-6xl font-bold ${titleColor} leading-none mb-2`}
+          className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`}
           style={{ fontFamily: '"clashB", system-ui, sans-serif' }}
         >
           {title}
@@ -202,7 +202,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
         {subtitle && (
           <h3 
             ref={subtitleRef}
-            className={`text-lg md:text-xl lg:text-2xl font-medium ${titleColor} leading-tight opacity-80`}
+            className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`}
             style={{ fontFamily: '"clashS", system-ui, sans-serif' }}
           >
             {subtitle}
@@ -216,6 +216,17 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
 function NewProject() {
   const containerRef = useRef(null)
   const projectsRef = useRef([])
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024) // Tablet and mobile
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -227,16 +238,58 @@ function NewProject() {
         return
       }
 
-      // Set initial state - positioned below but fully opaque
+      // keep visibility flag available for both mobile and desktop
+      let isNewProjectVisible = false
+
+      if (isMobile) {
+        // Mobile/Tablet: set up appearance animation but DO NOT skip horizontal setup
+        gsap.set(containerRef.current, { 
+          y: '100vh',
+          opacity: 1,
+          x: 0
+        })
+
+        ScrollTrigger.create({
+          trigger: textProjectSection,
+          start: 'top top',
+          end: '+=150vh',
+          scrub: 1,
+          invalidateOnRefresh: true,
+          markers: false,
+          onUpdate: (self) => {
+            if (self.progress >= 0.3) {
+              const adjustedProgress = (self.progress - 0.3) / 0.7
+              const easedProgress = gsap.parseEase("power2.out")(adjustedProgress)
+              
+              gsap.to(containerRef.current, {
+                y: `${100 - (easedProgress * 100)}vh`,
+                duration: 1,
+                overwrite: true
+              })
+
+              // mark visible when fully appeared on mobile as well
+              if (adjustedProgress >= 1 && !isNewProjectVisible) {
+                isNewProjectVisible = true
+              }
+            } else {
+              gsap.to(containerRef.current, {
+                y: '100vh',
+                duration: 0.4,
+                overwrite: true
+              })
+              isNewProjectVisible = false
+            }
+          }
+        })
+        // continue to set up horizontal scroll below (no early return)
+      }
+
+      // Desktop: original behavior (appearance)
       gsap.set(containerRef.current, { 
         y: '100vh',
         opacity: 1,
-        x: 0 // Start at x position 0
+        x: 0
       })
-
-      let isNewProjectVisible = false
-
-      // Create ScrollTrigger that activates during TextProject pin
       ScrollTrigger.create({
         trigger: textProjectSection,
         start: 'top top',
@@ -247,52 +300,40 @@ function NewProject() {
         onUpdate: (self) => {
           console.log('NewProject appearance progress:', self.progress)
           
-          // Show NewProject when we're 30% through the pin with slower animation
           if (self.progress >= 0.3) {
-            const adjustedProgress = (self.progress - 0.3) / 0.7 // Normalize 0.3-1.0 to 0-1
-            
-            // Apply easing for slower, smoother appearance
+            const adjustedProgress = (self.progress - 0.3) / 0.7
             const easedProgress = gsap.parseEase("power2.out")(adjustedProgress)
             
-            // Move the container into view with slower, smoother animation
             gsap.to(containerRef.current, {
               y: `${100 - (easedProgress * 100)}vh`,
-              duration: 1, // Increased from 0.1 for slower animation
-              
+              duration: 1,
               overwrite: true
             })
 
-            // Mark as visible when fully appeared
             if (adjustedProgress >= 1 && !isNewProjectVisible) {
               isNewProjectVisible = true
               console.log('NewProject is now fully visible')
             }
 
-            // Animate project cards with slower stagger
             if (projectsRef.current.length > 0) {
               projectsRef.current.forEach((project, index) => {
-                const delay = index * 0.15 // Increased delay between cards
+                const delay = index * 0.15
                 const cardProgress = Math.max(0, adjustedProgress - delay)
                 const easedCardProgress = gsap.parseEase("power2.out")(cardProgress)
                 
-                // Ensure cards remain vertically aligned and fully opaque with slower animation
                 gsap.to(project, {
                   y: 0,
                   opacity: 1,
-                  duration: 1, // Increased from 0.1 for slower card animation
-                  
+                  duration: 1,
                   overwrite: true
                 })
               })
             }
           } else {
-            // Hide NewProject when below 30% with slower animation
             isNewProjectVisible = false
-            // Move container back below viewport with slower animation
             gsap.to(containerRef.current, {
               y: '100vh',
-              duration: 0.4, // Increased from 0.1 for slower hide animation
-            
+              duration: 0.4,
               overwrite: true
             })
           }
@@ -308,22 +349,18 @@ function NewProject() {
         invalidateOnRefresh: true,
         markers: false,
         onUpdate: (self) => {
-          console.log('Horizontal scroll progress:', self.progress)
-          
           // Only do horizontal scrolling if NewProject is visible
           if (isNewProjectVisible && containerRef.current) {
-            // Calculate horizontal movement
-            // Move from 0vw to -500vw (showing all 6 projects perfectly)
-            const maxTranslateX = -500 // Exactly -500vw to show all 6 projects (100vw each)
+            // Determine number of projects and translate accordingly
+            const numProjects = projectsRef.current.length || 6
+            const maxTranslateX = -100 * (numProjects - 1) // -100vw per shift
             const translateX = self.progress * maxTranslateX
-            
+
             gsap.to(containerRef.current, {
               x: `${translateX}vw`,
               duration: 0.1,
               overwrite: "auto"
             })
-            
-            console.log('Applying translateX:', translateX)
           }
         }
       })
@@ -331,7 +368,7 @@ function NewProject() {
     }, containerRef)
 
     return () => ctx.revert()
-  }, [])
+  }, [isMobile])
 
   const addToRefs = (el) => {
     if (el && !projectsRef.current.includes(el)) {
@@ -339,14 +376,17 @@ function NewProject() {
     }
   }
 
+  // Total number of projects (used to calculate container width for horizontal scroll)
+  const TOTAL_PROJECTS = 6
+
   return (
     <div 
       ref={containerRef}
-      className='fixed top-0 left-0 w-[600vw] h-[100vh] flex items-center z-50 textured-black-bg'
-      style={{ transform: 'translateY(100vh)' }}
+      className={`fixed top-0 left-0 flex items-center z-50 textured-black-bg`}
+      style={{ transform: 'translateY(100vh)', width: `${TOTAL_PROJECTS * 100}vw`, height: '100vh' }}
       data-section="newproject"
     >
-      <div ref={addToRefs} className="project1 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+  <div ref={addToRefs} className={`project1 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://github.com/project1"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -382,7 +422,7 @@ function NewProject() {
           />
         </div>
       </div>
-      <div ref={addToRefs} className="project2 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+  <div ref={addToRefs} className={`project2 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://github.com/project2"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -412,7 +452,7 @@ function NewProject() {
           titleColor="text-white"
         />
       </div>
-      <div ref={addToRefs} className="project3 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+  <div ref={addToRefs} className={`project3 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project3"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -442,7 +482,7 @@ function NewProject() {
         />
         
       </div>
-      <div ref={addToRefs} className="project4 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+  <div ref={addToRefs} className={`project4 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project4"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -471,7 +511,7 @@ function NewProject() {
           titleColor="text-white"
         />
       </div>
-      <div ref={addToRefs} className="project5 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+  <div ref={addToRefs} className={`project5 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project5"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -500,7 +540,7 @@ function NewProject() {
           titleColor="text-white"
         />
       </div>
-      <div ref={addToRefs} className="project6 w-[100vw] h-full textured-black-bg flex items-center justify-center relative p-8"
+  <div ref={addToRefs} className={`project6 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project6"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',

@@ -150,8 +150,8 @@ function PositionedModel({ modelPath, position, canvasStyle, scale = [0.5, 0.5, 
 // Raw Logo Model Component - Center of screen with specific camera settings
 function RawLogoModel({ modelRef }) {
   return (
-    <div ref={modelRef} className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab" 
-         style={{ width: '2000px', height: '2000px', touchAction: 'none', zIndex: 1 }}>
+    <div ref={modelRef} className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab w-[70vw] h-[150vw] sm:w-[400px] sm:h-[400px] md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] xl:w-[2000px] xl:h-[2000px]" 
+         style={{ touchAction: 'none', zIndex: 1 }}>
       <Canvas
         className="w-full h-full"
         camera={{ 
@@ -180,8 +180,8 @@ function RawLogoModel({ modelRef }) {
 // Music Model Component - Top left corner with specific camera settings
 function MusicModel({ modelRef }) {
   return (
-  <div ref={modelRef} className="fixed z-[1] top-8 left-8 cursor-grab" 
-     style={{ width: '400px', height: '400px', touchAction: 'none' }}>
+  <div ref={modelRef} className="fixed z-[1] top-4 sm:top-8 left-4 sm:left-8 cursor-grab w-[150px] h-[150px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px]" 
+     style={{ touchAction: 'none' }}>
       <Canvas
         className="w-full h-full"
         camera={{ 
