@@ -27,8 +27,17 @@ const TemplateColumn = ({
   const videoWrapRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom);
+  // Detect touch support on client only to avoid SSR reference to `window`.
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
+    // Run only on client: detect touch-capable devices.
+    try {
+      setIsTouch(typeof window !== 'undefined' && 'ontouchstart' in window);
+    } catch (e) {
+      setIsTouch(false);
+    }
+
     const container = containerRef.current;
     if (!container) return;
 
@@ -69,12 +78,12 @@ const TemplateColumn = ({
   return (
     <div ref={containerRef} className={`relative w-full h-full overflow-hidden ${className}`}>
       <div ref={videoWrapRef} className="w-full h-full">
-        {/* Disable autoplay and preload on touch devices to save bandwidth */}
+        {/* Disable autoplay and preload on touch devices to save bandwidth. */}
         <LazyVideo
           src={src}
           fit="cover"
-          preload={('ontouchstart' in window) ? 'none' : 'metadata'}
-          shouldAutoplay={!('ontouchstart' in window)}
+          preload={isTouch ? 'none' : 'metadata'}
+          shouldAutoplay={!isTouch}
           loop
           muted
           playsInline
