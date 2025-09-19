@@ -1,109 +1,88 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 
 /**
  * LazyVideo Component with Intersection Observer
  * Optimizes video loading by only loading videos when they come into view
- * 
- * @param {string} src - Video source URL
- * @param {string} className - CSS classes for the container
- * @param {boolean} showLoader - Whether to show loading spinner (default: true)
- * @param {number} threshold - Intersection observer threshold (default: 0.1)
- * @param {object} ...props - Additional props passed to video element
  */
-const LazyVideo = ({ 
-  src, 
-  className = "", 
-  showLoader = true, 
-  threshold = 0.1,
+const LazyVideo = ({
+  src,
+  className = "",
+  showLoader = true,
+  threshold = 0.25,
   loaderClassName = "absolute inset-0 bg-gray-800 flex items-center justify-center",
-  // fit: 'cover' | 'contain' - default to contain so the whole video is visible
-  fit = 'contain',
-  ...props 
+  fit = 'contain', // 'cover' | 'contain'
+  preload = 'metadata', // 'auto' | 'metadata' | 'none'
+  shouldAutoplay = true,
+  ...props
 }) => {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [isInView, setIsInView] = useState(false)
-  const [hasError, setHasError] = useState(false)
-  const videoRef = useRef(null)
-  const videoElRef = useRef(null)
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const wrapperRef = useRef(null);
+  const videoElRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true)
-          observer.disconnect()
-        }
+        // update visibility continuously; play when visible, pause when not
+        setIsInView(entry.isIntersecting);
       },
       { threshold }
-    )
+    );
 
-    if (videoRef.current) {
-      observer.observe(videoRef.current)
-    }
+    if (wrapperRef.current) observer.observe(wrapperRef.current);
+    return () => observer.disconnect();
+  }, [threshold]);
 
-    return () => observer.disconnect()
-  }, [threshold])
-
-  // Try to play the video when it becomes visible. Some browsers require a user gesture
-  // unless the video is muted. We still attempt programmatic play and ignore rejection.
   useEffect(() => {
-    if (isInView && videoElRef.current) {
-      const el = videoElRef.current
-      // ensure muted so autoplay is allowed in most browsers
-      el.muted = true
-      const playPromise = el.play()
-      if (playPromise && typeof playPromise.then === 'function') {
-        playPromise.catch(() => {
-          // ignore autoplay rejection; video will remain paused until user interacts
-        })
+    const el = videoElRef.current;
+    if (!el) return;
+
+    if (isInView) {
+      if (shouldAutoplay) {
+        // ensure muted so autoplay is allowed
+        try {
+          el.muted = true;
+          const p = el.play();
+          if (p && p.then) p.catch(() => {});
+        } catch (e) {
+          // ignore
+        }
+      }
+    } else {
+      // pause when out of view to save CPU/bandwidth
+      try {
+        el.pause();
+      } catch (e) {
+        // ignore
       }
     }
-  }, [isInView])
+  }, [isInView, shouldAutoplay]);
 
   const handleLoadedData = () => {
-    setIsLoaded(true)
-    setHasError(false)
-  }
+    setIsLoaded(true);
+    setHasError(false);
+  };
 
   const handleError = () => {
-    setHasError(true)
-    setIsLoaded(false)
-  }
+    setHasError(true);
+    setIsLoaded(false);
+  };
 
-  // if using contain, add a neutral background so letterboxing looks clean
   const wrapperClass = `${className} ${fit === 'contain' ? 'bg-black' : ''}`;
 
   return (
-    <div ref={videoRef} className={wrapperClass}>
+    <div ref={wrapperRef} className={wrapperClass}>
       {isInView && (
         <>
-          {/* Blurred background video when using object-contain to fill letterbox areas */}
-          {fit === 'contain' && (
-            <video
-              className="absolute top-0 left-0 w-full h-full object-cover object-center"
-              src={src}
-              autoPlay={true}
-              muted={true}
-              playsInline={true}
-              loop={true}
-              style={{
-                filter: 'blur(20px) brightness(0.3)',
-                transform: 'scale(1.1)', // slightly larger to hide blur edges
-                zIndex: 0,
-                opacity: isLoaded ? 1 : 0,
-                transition: 'opacity 0.3s ease-in-out'
-              }}
-            />
-          )}
-
           {showLoader && !isLoaded && !hasError && (
             <div className={loaderClassName}>
-              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
             </div>
           )}
-          
+
           {hasError && (
             <div className={loaderClassName}>
               <div className="text-white text-center">
@@ -112,20 +91,19 @@ const LazyVideo = ({
               </div>
             </div>
           )}
-          
+
           <video
             ref={videoElRef}
             className={`absolute top-0 left-0 w-full h-full ${fit === 'cover' ? 'object-cover' : 'object-contain'} object-center`}
             src={src}
+            preload={preload}
             onLoadedData={handleLoadedData}
             onError={handleError}
-            style={{ 
+            style={{
               opacity: isLoaded ? 1 : 0,
               transition: 'opacity 0.3s ease-in-out',
-              zIndex: fit === 'contain' ? 10 : 'auto' // ensure main video is above background
             }}
-            // ensure autoplay, muted and playsInline are set explicitly
-            autoPlay={true}
+            autoPlay={shouldAutoplay}
             muted={true}
             playsInline={true}
             {...props}
@@ -133,7 +111,7 @@ const LazyVideo = ({
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default LazyVideo
+export default LazyVideo;

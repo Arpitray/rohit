@@ -69,7 +69,18 @@ const TemplateColumn = ({
   return (
     <div ref={containerRef} className={`relative w-full h-full overflow-hidden ${className}`}>
       <div ref={videoWrapRef} className="w-full h-full">
-        <LazyVideo src={src} autoplay loop muted playsInline showLoader={showLoader} className="w-full h-full relative" />
+        {/* Disable autoplay and preload on touch devices to save bandwidth */}
+        <LazyVideo
+          src={src}
+          fit="cover"
+          preload={('ontouchstart' in window) ? 'none' : 'metadata'}
+          shouldAutoplay={!('ontouchstart' in window)}
+          loop
+          muted
+          playsInline
+          showLoader={showLoader}
+          className="w-full h-full relative"
+        />
       </div>
 
       {showZoomButton && (
