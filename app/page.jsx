@@ -167,7 +167,7 @@ function RawLogoModel({ modelRef }) {
         <Suspense fallback={null}>
           <Environment preset="sunset" background={false} />
           <Model3D 
-            modelPath="/raw_logo.glb"
+            modelPath="/raw_logo3.glb"
             scale={[0.6, 0.6, 0.6]}
             maxRotation={0.22}
           />
@@ -198,7 +198,7 @@ function MusicModel({ modelRef }) {
         <Suspense fallback={null}>
           <Environment preset="studio" background={false} />
           <Model3D 
-            modelPath="/newMusic3.glb"
+            modelPath="/newMusic4.glb"
             scale={[0.5, 0.5, 0.5]}
             maxRotation={0.1}
             // start with a rightward-facing bias so its resting pose matches hover-on-right
