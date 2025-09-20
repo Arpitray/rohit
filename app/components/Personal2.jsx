@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import TemplateColumn from "./TemplateColumn";
 
-// Default video source (replace with your own video in /public or remote URL)
+  // Default video sources
 const VIDEO_SRC = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221382/Jackboys_2_travisscott_travisscott_travisscottedits_travisscottfans_jackboys_3danimatio_mwcf5t";
 const VIDEO_SRC2 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758217507/I_AM_MUSC_-_playboicarti_opium_00pium_riseofcarti_playboicarti_playboicartiedits_iammusic_ig7ceh";
 const VIDEO_SRC3 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221513/timeless_dolfia";
@@ -56,10 +56,10 @@ function Personal2() {
     { id: 11, colSpan: 1, rowSpan: 3, src: VIDEO_SRC11, defaultZoom: true, zoomScale: 1.1, showZoomButton: false },
   ];
 
-  // Function to organize videos into responsive rows
+  // Organize videos into responsive rows
   const organizeVideosIntoRows = (videos) => {
     if (screenSize === 'mobile') {
-      // Mobile: First video full width, then pairs of portrait videos
+      // Mobile: first video full width, then pairs
       const rows = [];
       
       // First video gets its own row (full width)
@@ -76,7 +76,7 @@ function Personal2() {
       
       return rows;
     } else if (screenSize === 'tablet') {
-      // Tablet: 2 videos per row
+      // Tablet: two per row
       const rows = [];
       for (let i = 0; i < videos.length; i += 2) {
         rows.push(videos.slice(i, i + 2));
@@ -84,7 +84,7 @@ function Personal2() {
       return rows;
     }
     
-    // Desktop: original complex grid layout
+  // Desktop: original complex grid layout
     const rows = [];
     let currentRow = [];
     let currentRowSpaceUsed = 0;
@@ -154,17 +154,15 @@ function Personal2() {
           {/* Responsive video rows container */}
           <div className="space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-6">
             {videoRows.map((row, rowIndex) => {
-              // total columns is the sum of colSpan values in this row
-              const totalCols = row.reduce((s, v) => s + (v.colSpan || 1), 0);
-              const maxRowSpan = Math.max(...row.map(v => v.rowSpan || 1));
+                          const totalCols = row.reduce((s, v) => s + (v.colSpan || 1), 0);
+                          const maxRowSpan = Math.max(...row.map(v => v.rowSpan || 1));
               
-              // For mobile: determine if this is the first row (full width) or pair row
               const isMobileFirstRow = screenSize === 'mobile' && rowIndex === 0;
               const isMobilePairRow = screenSize === 'mobile' && rowIndex > 0;
 
               return (
                 <div key={rowIndex} className="w-full">
-                  {/* Dynamic grid based on videos in this row */}
+                  {/* dynamic grid for this row */}
                   <div
                     className={`grid gap-2 sm:gap-3 md:gap-4 lg:gap-6 [--row-h:280px] sm:[--row-h:200px] md:[--row-h:160px] lg:[--row-h:192px] xl:[--row-h:310px] 
                       ${isMobileFirstRow ? 'grid-cols-1' : ''} 
@@ -189,7 +187,7 @@ function Personal2() {
                         }}
                       >
                         {screenSize === 'mobile' ? (
-                          // Direct video element for mobile - no lazy loading
+                          // direct video element for mobile - no lazy loading
                           <video
                             src={video.src}
                             className="w-full h-full object-cover rounded-md sm:rounded-lg overflow-hidden shadow-lg"

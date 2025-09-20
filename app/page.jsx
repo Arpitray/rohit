@@ -11,17 +11,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const pexelsImages = [
-  'https://images.pexels.com/photos/32617821/pexels-photo-32617821.jpeg',
-  'https://images.pexels.com/photos/417074/pexels-photo-417074.jpeg',
-  'https://images.pexels.com/photos/1563356/pexels-photo-1563356.jpeg',
-  'https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg',
-  'https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg',
-  'https://images.pexels.com/photos/2387793/pexels-photo-2387793.jpeg',
-  'https://images.pexels.com/photos/1591447/pexels-photo-1591447.jpeg',
-  'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg',
-  'https://images.pexels.com/photos/1323712/pexels-photo-1323712'
-];
 
 // 3D Model component with cursor following
 function Model3D({ modelPath, position = [0, 0, 0], scale = [1, 1, 1], maxRotation = 0.3, initialRotation = [0, 0, 0] }) {
@@ -121,31 +110,6 @@ function Model3D({ modelPath, position = [0, 0, 0], scale = [1, 1, 1], maxRotati
 }
 
 // 3D Canvas component positioned at specific screen location
-function PositionedModel({ modelPath, position, canvasStyle, scale = [0.5, 0.5, 0.5], maxRotation = 0.2, cameraConfig = {} }) {
-  const defaultCamera = { position: [0, 0, 3], fov: 45 };
-  const camera = { ...defaultCamera, ...cameraConfig };
-  
-  return (
-    <div className={`fixed pointer-events-none ${position}`} z-20 style={{ ...canvasStyle, zIndex: -1 }}>
-      <Canvas
-        className="w-full h-full"
-        camera={camera}
-        dpr={[1, 1.5]}
-      >
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <Suspense fallback={null}>
-          <Environment preset="studio" background={false} />
-          <Model3D 
-            modelPath={modelPath} 
-            scale={scale} 
-            maxRotation={maxRotation}
-          />
-        </Suspense>
-      </Canvas>
-    </div>
-  );
-}
 
 // Raw Logo Model Component - Center of screen with specific camera settings
 function RawLogoModel({ modelRef }) {
@@ -218,16 +182,7 @@ export default function Home() {
   const x = useMotionValue(0); // pixel translateX
   const y = useMotionValue(0); // pixel translateY
   
-  // Generate fewer, static image positions for better performance
-  const imagePositions = useState(() => 
-    pexelsImages.map((_, index) => ({
-      x: Math.random() * 160 + 20, // 20% to 180% of viewport width
-      y: Math.random() * 110 + 20, // 20% to 130% of viewport height
-      size: Math.random() * 120 + 80, // Random size between 80px and 200px
-      rotation: Math.random() * 40 - 20, // Random rotation between -20 and 20 degrees
-      zIndex: Math.floor(Math.random() * 5) + 1
-    }))
-  )[0];
+  // (removed unused floating images and positioned model to simplify page and improve clarity)
 
   // Initialize center positions (pixel values) and add RAF-throttled mouse handler
   useEffect(() => {

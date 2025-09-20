@@ -229,12 +229,22 @@ function NewProject() {
   }, [])
 
   useEffect(() => {
+    // Skip GSAP heavy scroll triggers on touch devices (mobile/tablet)
+    if (typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+      // still keep basic positioning but avoid registering ScrollTrigger
+      gsap.set(containerRef.current, { 
+        y: '100vh',
+        opacity: 1,
+        x: 0
+      })
+      return
+    }
+
     const ctx = gsap.context(() => {
       const textProjectSection = document.querySelector('[data-section="textproject"]')
       const horizontalTrigger = document.querySelector('#horizontal-scroll-trigger')
       
       if (!textProjectSection || !horizontalTrigger) {
-        console.log('Required sections not found')
         return
       }
 
@@ -298,8 +308,6 @@ function NewProject() {
         invalidateOnRefresh: true,
         markers: false,
         onUpdate: (self) => {
-          console.log('NewProject appearance progress:', self.progress)
-          
           if (self.progress >= 0.3) {
             const adjustedProgress = (self.progress - 0.3) / 0.7
             const easedProgress = gsap.parseEase("power2.out")(adjustedProgress)
@@ -312,7 +320,6 @@ function NewProject() {
 
             if (adjustedProgress >= 1 && !isNewProjectVisible) {
               isNewProjectVisible = true
-              console.log('NewProject is now fully visible')
             }
 
             if (projectsRef.current.length > 0) {
@@ -367,7 +374,9 @@ function NewProject() {
 
     }, containerRef)
 
-    return () => ctx.revert()
+    return () => {
+      try { ctx.revert() } catch (e) { /* ignore if ctx wasn't created */ }
+    }
   }, [isMobile])
 
   const addToRefs = (el) => {

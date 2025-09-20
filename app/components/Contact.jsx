@@ -12,9 +12,7 @@ function Contact() {
 
   function handleSubmit(e) {
     e.preventDefault()
-    // For now just log the values. Replace with real submission logic later.
-    console.log('Contact form submitted', form)
-    alert('Thanks — your message was received (demo).')
+    // TODO: Replace with real submission logic (API/email). Keep form reset for now.
     setForm({ name: '', email: '', message: '' })
   }
 
