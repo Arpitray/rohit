@@ -229,15 +229,11 @@ function NewProject() {
   }, [])
 
   useEffect(() => {
-    // Skip GSAP heavy scroll triggers on touch devices (mobile/tablet)
-    if (typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
-      // still keep basic positioning but avoid registering ScrollTrigger
-      gsap.set(containerRef.current, { 
-        y: '100vh',
-        opacity: 1,
-        x: 0
-      })
-      return
+    // For touch devices we still want the mobile appearance animation below.
+    // Previously we returned early here which prevented the mobile animation from initializing.
+    // Keep initial positioning for safety.
+    if (containerRef.current) {
+      gsap.set(containerRef.current, { y: '100vh', opacity: 1, x: 0 })
     }
 
     const ctx = gsap.context(() => {
