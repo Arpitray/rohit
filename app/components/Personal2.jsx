@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import TemplateColumn from "./TemplateColumn";
 
-  // Default video sources
+// Default video sources
 const VIDEO_SRC = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221382/Jackboys_2_travisscott_travisscott_travisscottedits_travisscottfans_jackboys_3danimatio_mwcf5t";
 const VIDEO_SRC2 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758217507/I_AM_MUSC_-_playboicarti_opium_00pium_riseofcarti_playboicarti_playboicartiedits_iammusic_ig7ceh";
 const VIDEO_SRC3 = "https://res.cloudinary.com/dsjjdnife/video/upload/f_auto,q_auto/v1758221513/timeless_dolfia";

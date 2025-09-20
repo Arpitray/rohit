@@ -17,6 +17,12 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = useState(false)
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  useEffect(() => {
+    // Detect touch device
+    setIsTouchDevice(typeof window !== 'undefined' && 'ontouchstart' in window)
+  }, [])
 
   useEffect(() => {
     const container = containerRef.current
@@ -24,7 +30,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
     const subtitleElement = subtitleRef.current
     const overlay = overlayRef.current
     
-    if (!container || !titleElement || !overlay) return
+    if (!container || !titleElement || !overlay || isTouchDevice) return
 
     // Split title into words for word-level animation (whole word appears at once)
     const titleWords = titleElement.textContent.split(' ').map((word, index, arr) => {
@@ -66,8 +72,8 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       const normalizedY = (y / rect.height) * 2 - 1
       
       // Scale the movement (adjust these values to control sensitivity)
-      const moveX = normalizedX * 80 // Increased from 20px to 80px max movement
-      const moveY = normalizedY * 60 // Increased from 15px to 60px max movement
+      const moveX = normalizedX * 20 // Reduced from 80px to 20px for performance
+      const moveY = normalizedY * 15 // Reduced from 60px to 15px for performance
       
       setMousePos({ x: moveX, y: moveY })
     }
@@ -145,7 +151,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       container.removeEventListener('mouseenter', handleMouseEnter)
       container.removeEventListener('mouseleave', handleMouseLeave)
     }
-  }, [])
+  }, [isTouchDevice])
 
   return (
     <div 
@@ -156,8 +162,10 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       <div
         ref={videoRef}
         style={{
-          transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(${isZoomed ? zoomScale : 1.3})`,
-          transition: 'transform 0.2s ease-out'
+          transform: isTouchDevice 
+            ? `scale(${isZoomed ? zoomScale : 1.2})` 
+            : `translate(${mousePos.x}px, ${mousePos.y}px) scale(${isZoomed ? zoomScale : 1.3})`,
+          transition: isTouchDevice ? 'transform 0.3s ease-out' : 'transform 0.2s ease-out'
         }}
         className="w-full h-full"
       >
@@ -192,21 +200,46 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       
       {/* Title and subtitle positioned at bottom-left */}
       <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-4 sm:left-6 md:left-8 z-20 pointer-events-none overflow-hidden">
-        <h2 
-          ref={titleRef}
-          className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`}
-          style={{ fontFamily: '"clashB", system-ui, sans-serif' }}
-        >
-          {title}
-        </h2>
-        {subtitle && (
-          <h3 
-            ref={subtitleRef}
-            className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`}
-            style={{ fontFamily: '"clashS", system-ui, sans-serif' }}
-          >
-            {subtitle}
-          </h3>
+        {isTouchDevice ? (
+          // Simple static titles for mobile
+          <>
+            <h2 
+              ref={titleRef}
+              className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`}
+              style={{ fontFamily: '"clashB", system-ui, sans-serif' }}
+            >
+              {title}
+            </h2>
+            {subtitle && (
+              <h3 
+                ref={subtitleRef}
+                className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`}
+                style={{ fontFamily: '"clashS", system-ui, sans-serif' }}
+              >
+                {subtitle}
+              </h3>
+            )}
+          </>
+        ) : (
+          // Animated titles for desktop
+          <>
+            <h2 
+              ref={titleRef}
+              className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`}
+              style={{ fontFamily: '"clashB", system-ui, sans-serif' }}
+            >
+              {title}
+            </h2>
+            {subtitle && (
+              <h3 
+                ref={subtitleRef}
+                className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`}
+                style={{ fontFamily: '"clashS", system-ui, sans-serif' }}
+              >
+                {subtitle}
+              </h3>
+            )}
+          </>
         )}
       </div>
     </div>
