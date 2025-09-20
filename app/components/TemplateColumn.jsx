@@ -30,7 +30,9 @@ const TemplateColumn = ({
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom);
   // Detect touch support on client only to avoid SSR reference to `window`.
-  const [isTouch, setIsTouch] = useState(false);
+  const [isTouch, setIsTouch] = useState(() => (typeof window !== 'undefined' && 'ontouchstart' in window));
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playCounter, setPlayCounter] = useState(0);
 
   useEffect(() => {
     // Run only on client: detect touch-capable devices.
@@ -80,19 +82,44 @@ const TemplateColumn = ({
   return (
     <div ref={containerRef} className={`relative w-full h-full overflow-hidden ${className}`}>
       <div ref={videoWrapRef} className="w-full h-full">
-        {/* Disable autoplay and preload on touch devices to save bandwidth. */}
+        {/* Disable autoplay and preload on touch devices to save bandwidth.
+            On touch devices we show a poster overlay and only trigger playback
+            when the user taps the poster (incrementing playCounter). */}
         <LazyVideo
           src={src}
           fit="cover"
-          preload={isTouch ? 'none' : 'metadata'}
+          preload={isTouch && !isPlaying ? 'none' : 'metadata'}
           shouldAutoplay={!isTouch}
-          playSignal={playSignal}
+          playSignal={playSignal + playCounter}
           loop
           muted
           playsInline
           showLoader={showLoader}
           className="w-full h-full relative"
         />
+
+        {/* Poster overlay for touch devices (mobile). Use derived poster URL (fallback to src + .jpg) */}
+        {isTouch && !isPlaying && (
+          (() => {
+            const posterUrl = src.includes('res.cloudinary.com') ? `${src}.jpg` : `${src}.jpg`;
+            return (
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => { setIsPlaying(true); setPlayCounter(c => c + 1); }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setIsPlaying(true); setPlayCounter(c => c + 1); } }}
+                className="absolute inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60 cursor-pointer"
+                style={{ backgroundImage: `url(${posterUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+              >
+                <div className="bg-white/90 rounded-full p-3 shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+            );
+          })()
+        )}
       </div>
 
       {showZoomButton && (

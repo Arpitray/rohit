@@ -17,36 +17,36 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = useState(false)
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom)
-  const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const [isTouchDevice, setIsTouchDevice] = useState(() => (typeof window !== 'undefined' && 'ontouchstart' in window))
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [playCount, setPlayCount] = useState(0)
 
   useEffect(() => {
-    // Detect touch device
-    setIsTouchDevice(typeof window !== 'undefined' && 'ontouchstart' in window)
+    // Ensure detection runs on mount (no-op if already set)
+    try { setIsTouchDevice(typeof window !== 'undefined' && 'ontouchstart' in window) } catch (e) {}
   }, [])
 
   useEffect(() => {
+    if (isTouchDevice) return // skip desktop-specific animations on touch devices
+
     const container = containerRef.current
     const titleElement = titleRef.current
     const subtitleElement = subtitleRef.current
     const overlay = overlayRef.current
-    
-    if (!container || !titleElement || !overlay || isTouchDevice) return
+    if (!container || !titleElement || !overlay) return
 
-    // Split title into words for word-level animation (whole word appears at once)
+    // Word-splitting for animated titles
     const titleWords = titleElement.textContent.split(' ').map((word, index, arr) => {
       const span = document.createElement('span')
-      // keep words as a unit; append a trailing space for separation except last
       span.textContent = word + (index < arr.length - 1 ? '\u00A0' : '')
       span.style.display = 'inline-block'
       span.style.transform = 'translateY(100%)'
       span.style.opacity = '0'
       return span
     })
-
     titleElement.innerHTML = ''
     titleWords.forEach(w => titleElement.appendChild(w))
 
-    // Split subtitle into words for animation (if subtitle exists)
     let subtitleWords = []
     if (subtitleElement && subtitle) {
       subtitleWords = subtitleElement.textContent.split(' ').map((word, index, arr) => {
@@ -57,7 +57,6 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
         span.style.opacity = '0'
         return span
       })
-
       subtitleElement.innerHTML = ''
       subtitleWords.forEach(w => subtitleElement.appendChild(w))
     }
@@ -66,80 +65,24 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       const rect = container.getBoundingClientRect()
       const x = e.clientX - rect.left
       const y = e.clientY - rect.top
-      
-      // Normalize mouse position to -1 to 1 range
-      const normalizedX = (x / rect.width) * 2 - 1
-      const normalizedY = (y / rect.height) * 2 - 1
-      
-      // Scale the movement (adjust these values to control sensitivity)
-      const moveX = normalizedX * 20 // Reduced from 80px to 20px for performance
-      const moveY = normalizedY * 15 // Reduced from 60px to 15px for performance
-      
-      setMousePos({ x: moveX, y: moveY })
+      const nx = (x / rect.width) * 2 - 1
+      const ny = (y / rect.height) * 2 - 1
+      setMousePos({ x: nx * 20, y: ny * 15 })
     }
 
     const handleMouseEnter = () => {
       setIsHovered(true)
-      
-      // Animate overlay in
-      gsap.to(overlay, {
-        opacity: 0.7,
-        duration: 0.3,
-        ease: "power2.out"
-      })
-      
-      // Animate title words from bottom to top (words appear as whole units)
-      gsap.to(titleWords, {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.06,
-        ease: "power3.out"
-      })
-
-      // Animate subtitle words with 0.4s delay
-      if (subtitleWords.length > 0) {
-        gsap.to(subtitleWords, {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.06,
-          ease: "power3.out",
-          delay: 0.4
-        })
-      }
+      gsap.to(overlay, { opacity: 0.7, duration: 0.3, ease: 'power2.out' })
+      gsap.to(titleWords, { y: 0, opacity: 1, duration: 0.6, stagger: 0.06, ease: 'power3.out' })
+      if (subtitleWords.length > 0) gsap.to(subtitleWords, { y: 0, opacity: 1, duration: 0.6, stagger: 0.06, ease: 'power3.out', delay: 0.4 })
     }
 
     const handleMouseLeave = () => {
       setIsHovered(false)
       setMousePos({ x: 0, y: 0 })
-      
-      // Animate overlay out
-      gsap.to(overlay, {
-        opacity: 0,
-        duration: 0.3,
-        ease: "power2.out"
-      })
-      
-      // Animate title words back down
-      gsap.to(titleWords, {
-        y: '100%',
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.03,
-        ease: "power2.in"
-      })
-
-      // Animate subtitle words back down
-      if (subtitleWords.length > 0) {
-        gsap.to(subtitleWords, {
-          y: '100%',
-          opacity: 0,
-          duration: 0.4,
-          stagger: 0.03,
-          ease: "power2.in"
-        })
-      }
+      gsap.to(overlay, { opacity: 0, duration: 0.3, ease: 'power2.out' })
+      gsap.to(titleWords, { y: '100%', opacity: 0, duration: 0.4, stagger: 0.03, ease: 'power2.in' })
+      if (subtitleWords.length > 0) gsap.to(subtitleWords, { y: '100%', opacity: 0, duration: 0.4, stagger: 0.03, ease: 'power2.in' })
     }
 
     container.addEventListener('mousemove', handleMouseMove)
@@ -151,43 +94,55 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       container.removeEventListener('mouseenter', handleMouseEnter)
       container.removeEventListener('mouseleave', handleMouseLeave)
     }
-  }, [isTouchDevice])
+  }, [isTouchDevice, zoomScale, subtitle])
+
+  // derived poster
+  const posterUrl = src && src.includes('res.cloudinary.com') ? `${src}.jpg` : `${src}.jpg`
 
   return (
-    <div 
-      ref={containerRef}
-      className="w-[90%] sm:w-[85%] md:w-[90%] h-[60%] sm:h-[70%] md:h-[90%] relative overflow-hidden rounded-lg shadow-lg cursor-pointer"
-      data-interactive-video="true"
-    >
+    <div ref={containerRef} className="w-[90%] sm:w-[85%] md:w-[90%] h-[60%] sm:h-[70%] md:h-[90%] relative overflow-hidden rounded-lg shadow-lg cursor-pointer" data-interactive-video="true">
       <div
         ref={videoRef}
         style={{
-          transform: isTouchDevice 
-            ? `scale(${isZoomed ? zoomScale : 1.2})` 
-            : `translate(${mousePos.x}px, ${mousePos.y}px) scale(${isZoomed ? zoomScale : 1.3})`,
+          transform: isTouchDevice ? `scale(${isZoomed ? zoomScale : 1.2})` : `translate(${mousePos.x}px, ${mousePos.y}px) scale(${isZoomed ? zoomScale : 1.3})`,
           transition: isTouchDevice ? 'transform 0.3s ease-out' : 'transform 0.2s ease-out'
         }}
         className="w-full h-full"
       >
-        <LazyVideo 
-          className="absolute top-0 left-0 w-full h-full object-cover"
-          src={src}
-          autoPlay={!isTouchDevice}
-          muted
-          loop
-          playsInline
-          preload={isTouchDevice ? 'none' : 'metadata'}
-          shouldAutoplay={!isTouchDevice}
-        />
-      </div>
-      
-      {/* Dark overlay that appears on hover */}
-      <div 
-        ref={overlayRef}
-        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 pointer-events-none z-10"
-      />
+        {(!isTouchDevice || isPlaying) && (
+          <LazyVideo
+            className="absolute top-0 left-0 w-full h-full object-cover"
+            src={src}
+            autoPlay={!isTouchDevice}
+            muted
+            loop
+            playsInline
+            preload={isTouchDevice && !isPlaying ? 'none' : 'metadata'}
+            shouldAutoplay={!isTouchDevice}
+            playSignal={playCount}
+          />
+        )}
 
-      {/* Optional zoom toggle button (top-right) - only shown when showZoomButton is true */}
+        {isTouchDevice && !isPlaying && (
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => { setIsPlaying(true); setPlayCount(c => c + 1); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setIsPlaying(true); setPlayCount(c => c + 1); } }}
+            className="absolute inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60 cursor-pointer"
+            style={{ backgroundImage: `url(${posterUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          >
+            <div className="bg-white/90 rounded-full p-3 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div ref={overlayRef} className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 pointer-events-none z-10" />
+
       {showZoomButton && (
         <button
           onClick={() => setIsZoomed((s) => !s)}
@@ -199,48 +154,17 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
           {isZoomed ? 'Reset' : 'Zoom'}
         </button>
       )}
-      
-      {/* Title and subtitle positioned at bottom-left */}
+
       <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-4 sm:left-6 md:left-8 z-20 pointer-events-none overflow-hidden">
         {isTouchDevice ? (
-          // Simple static titles for mobile
           <>
-            <h2 
-              ref={titleRef}
-              className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`}
-              style={{ fontFamily: '"clashB", system-ui, sans-serif' }}
-            >
-              {title}
-            </h2>
-            {subtitle && (
-              <h3 
-                ref={subtitleRef}
-                className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`}
-                style={{ fontFamily: '"clashS", system-ui, sans-serif' }}
-              >
-                {subtitle}
-              </h3>
-            )}
+            <h2 ref={titleRef} className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`} style={{ fontFamily: '"clashB", system-ui, sans-serif' }}>{title}</h2>
+            {subtitle && <h3 ref={subtitleRef} className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`} style={{ fontFamily: '"clashS", system-ui, sans-serif' }}>{subtitle}</h3>}
           </>
         ) : (
-          // Animated titles for desktop
           <>
-            <h2 
-              ref={titleRef}
-              className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`}
-              style={{ fontFamily: '"clashB", system-ui, sans-serif' }}
-            >
-              {title}
-            </h2>
-            {subtitle && (
-              <h3 
-                ref={subtitleRef}
-                className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`}
-                style={{ fontFamily: '"clashS", system-ui, sans-serif' }}
-              >
-                {subtitle}
-              </h3>
-            )}
+            <h2 ref={titleRef} className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${titleColor} leading-none mb-1 sm:mb-2`} style={{ fontFamily: '"clashB", system-ui, sans-serif' }}>{title}</h2>
+            {subtitle && <h3 ref={subtitleRef} className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium ${titleColor} leading-tight opacity-80`} style={{ fontFamily: '"clashS", system-ui, sans-serif' }}>{subtitle}</h3>}
           </>
         )}
       </div>
