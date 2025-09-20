@@ -172,10 +172,12 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
         <LazyVideo 
           className="absolute top-0 left-0 w-full h-full object-cover"
           src={src}
-          autoPlay
+          autoPlay={!isTouchDevice}
           muted
           loop
           playsInline
+          preload={isTouchDevice ? 'none' : 'metadata'}
+          shouldAutoplay={!isTouchDevice}
         />
       </div>
       

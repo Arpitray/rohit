@@ -187,21 +187,43 @@ function Personal2() {
                         }}
                       >
                         {screenSize === 'mobile' ? (
-                          // direct video element for mobile - no lazy loading
-                          <video
-                            src={video.src}
-                            className="w-full h-full object-cover rounded-md sm:rounded-lg overflow-hidden shadow-lg"
-                            muted
-                            loop
-                            playsInline
-                            controls={false}
-                            preload="metadata"
-                            autoPlay={true}
-                            style={{
-                              backgroundColor: '#000',
-                              display: 'block'
+                          // Simplified mobile video - no loading during scroll
+                          <div 
+                            className="w-full h-full object-cover rounded-md sm:rounded-lg overflow-hidden shadow-lg bg-black flex items-center justify-center cursor-pointer relative"
+                            onClick={(e) => {
+                              const video = e.currentTarget.querySelector('video');
+                              const overlay = e.currentTarget.querySelector('.play-overlay');
+                              if (video && !video.src) {
+                                video.src = video.dataset.src;
+                                video.load();
+                                video.muted = true;
+                                video.play().catch(() => {});
+                                if (overlay) overlay.style.display = 'none';
+                              } else if (video) {
+                                video.muted = true;
+                                video.play().catch(() => {});
+                                if (overlay) overlay.style.display = 'none';
+                              }
                             }}
-                          />
+                          >
+                            <video
+                              className="w-full h-full object-cover"
+                              data-src={video.src}
+                              muted
+                              loop
+                              playsInline
+                              controls={false}
+                              preload="none"
+                            />
+                            <div className="play-overlay absolute inset-0 bg-black/50 flex items-center justify-center text-white">
+                              <div className="text-center">
+                                <div className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center mb-2 mx-auto">
+                                  <div className="w-0 h-0 border-l-4 border-l-white border-t-2 border-t-transparent border-b-2 border-b-transparent ml-1"></div>
+                                </div>
+                                <span className="text-sm">Tap to play</span>
+                              </div>
+                            </div>
+                          </div>
                         ) : (
                           // Use TemplateColumn with LazyVideo for desktop/tablet
                           <TemplateColumn

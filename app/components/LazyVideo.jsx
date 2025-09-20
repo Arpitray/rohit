@@ -24,18 +24,33 @@ const LazyVideo = ({
   const [hasError, setHasError] = useState(false);
   const wrapperRef = useRef(null);
   const videoElRef = useRef(null);
+  const observerTimeoutRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // update visibility continuously; play when visible, pause when not
-        setIsInView(entry.isIntersecting);
+        // Debounce intersection changes to reduce scroll lag
+        if (observerTimeoutRef.current) {
+          clearTimeout(observerTimeoutRef.current);
+        }
+        
+        observerTimeoutRef.current = setTimeout(() => {
+          setIsInView(entry.isIntersecting);
+        }, 150); // 150ms debounce
       },
-      { threshold }
+      { 
+        threshold,
+        rootMargin: '50px' // Load slightly before entering viewport
+      }
     );
 
     if (wrapperRef.current) observer.observe(wrapperRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (observerTimeoutRef.current) {
+        clearTimeout(observerTimeoutRef.current);
+      }
+    };
   }, [threshold]);
 
   useEffect(() => {
@@ -44,22 +59,26 @@ const LazyVideo = ({
 
     if (isInView) {
       if (shouldAutoplay) {
-        // ensure muted so autoplay is allowed
+        // Defer video play to next frame to avoid blocking scroll
+        requestAnimationFrame(() => {
+          try {
+            el.muted = true;
+            const p = el.play();
+            if (p && p.then) p.catch(() => {});
+          } catch (e) {
+            // ignore
+          }
+        });
+      }
+    } else {
+      // Defer video pause to avoid blocking scroll
+      requestAnimationFrame(() => {
         try {
-          el.muted = true;
-          const p = el.play();
-          if (p && p.then) p.catch(() => {});
+          el.pause();
         } catch (e) {
           // ignore
         }
-      }
-    } else {
-      // pause when out of view to save CPU/bandwidth
-      try {
-        el.pause();
-      } catch (e) {
-        // ignore
-      }
+      });
     }
   }, [isInView, shouldAutoplay]);
 
