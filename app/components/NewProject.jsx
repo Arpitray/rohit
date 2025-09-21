@@ -26,7 +26,6 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       navigator.maxTouchPoints > 0 || 
       window.innerWidth < 1024
     );
-    console.log('InteractiveVideo: Touch device detected:', touchDetected);
     setIsTouchDevice(touchDetected);
   }, [])
 
@@ -170,9 +169,9 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
         ref={videoRef}
         style={{
           transform: isTouchDevice 
-            ? `scale(${isZoomed ? zoomScale : 1.0})` 
-            : `translate(${mousePos.x}px, ${mousePos.y}px) scale(${isZoomed ? zoomScale : 1.1})`,
-          transition: isTouchDevice ? 'transform 0.3s ease-out' : 'transform 0.2s ease-out',
+            ? 'scale(1.0)' 
+            : `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.05)`,
+          transition: isTouchDevice ? 'none' : 'transform 0.1s ease-out',
           minHeight: '300px'
         }}
         className="w-full h-full"
@@ -185,7 +184,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
           muted
           loop
           playsInline
-          preload={isTouchDevice ? 'metadata' : 'metadata'}
+          preload={isTouchDevice ? 'none' : 'metadata'}
           // Always attempt autoplay (muted) and force mount on touch devices
           shouldAutoplay={true}
           forceLoad={isTouchDevice}

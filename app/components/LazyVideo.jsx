@@ -32,7 +32,6 @@ const LazyVideo = ({
   useEffect(() => {
     // If forceLoad is true, bypass IntersectionObserver and mount immediately
     if (forceLoad) {
-      console.log('LazyVideo: forceLoad enabled, mounting immediately', { src });
       setIsInView(true);
       return;
     }
@@ -46,11 +45,11 @@ const LazyVideo = ({
 
         observerTimeoutRef.current = setTimeout(() => {
           setIsInView(entry.isIntersecting);
-        }, 150); // 150ms debounce
+        }, 200); // Increased debounce for better performance
       },
       { 
         threshold,
-        rootMargin: '50px' // Load slightly before entering viewport
+        rootMargin: '100px' // Larger margin to preload earlier
       }
     );
 
@@ -66,7 +65,6 @@ const LazyVideo = ({
   useEffect(() => {
     const el = videoElRef.current;
     if (!el) return;
-    console.log('LazyVideo: video element present', { src, isInView, el });
 
     if (isInView) {
       if (shouldAutoplay) {
@@ -75,7 +73,7 @@ const LazyVideo = ({
           try {
             el.muted = true;
             const p = el.play();
-            if (p && p.then) p.then(() => console.log('LazyVideo: play started', { src })).catch((err) => console.warn('LazyVideo: play rejected', { src, err }));
+            if (p && p.then) p.catch(() => {});
           } catch (e) {
             // ignore
           }
@@ -118,15 +116,11 @@ const LazyVideo = ({
   }, [playSignal]);
 
   const handleLoadedData = () => {
-    const el = videoElRef.current;
-    console.log('LazyVideo: loaded data', { src, videoWidth: el?.videoWidth, videoHeight: el?.videoHeight });
     setIsLoaded(true);
     setHasError(false);
   };
 
   const handleError = () => {
-    const el = videoElRef.current;
-    console.error('LazyVideo: error loading', { src, el });
     setHasError(true);
     setIsLoaded(false);
   };
@@ -150,10 +144,8 @@ const LazyVideo = ({
       if (p && p.then) {
         await p;
       }
-      console.log('LazyVideo: autoplay succeeded', { src });
       return true;
     } catch (err) {
-      console.warn('LazyVideo: autoplay attempt rejected', { src, err });
       return false;
     }
   };
@@ -223,11 +215,9 @@ const LazyVideo = ({
             onLoadedMetadata={handleLoadedData}
             onError={handleError}
             style={{
-              // Ensure video renders above overlays/backgrounds
+              // Simplified styling for better performance
               opacity: 1,
-              transition: 'none',
               zIndex: 50,
-              pointerEvents: 'auto',
               minHeight: '300px',
               minWidth: '200px'
             }}
