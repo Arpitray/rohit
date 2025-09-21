@@ -15,6 +15,9 @@ const LazyVideo = ({
   fit = 'contain', // 'cover' | 'contain'
   preload = 'metadata', // 'auto' | 'metadata' | 'none'
   shouldAutoplay = true,
+  // forceLoad: boolean to force mounting the <video> (bypass IntersectionObserver).
+  // Useful when the video is inside a scrollable container that isn't the viewport (mobile stacks).
+  forceLoad = false,
   // playSignal: integer that, when incremented, forces a play attempt (useful for mobile user-initiated play)
   playSignal = 0,
   ...props
@@ -27,13 +30,20 @@ const LazyVideo = ({
   const observerTimeoutRef = useRef(null);
 
   useEffect(() => {
+    // If forceLoad is true, bypass IntersectionObserver and mount immediately
+    if (forceLoad) {
+      console.log('LazyVideo: forceLoad enabled, mounting immediately', { src });
+      setIsInView(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         // Debounce intersection changes to reduce scroll lag
         if (observerTimeoutRef.current) {
           clearTimeout(observerTimeoutRef.current);
         }
-        
+
         observerTimeoutRef.current = setTimeout(() => {
           setIsInView(entry.isIntersecting);
         }, 150); // 150ms debounce
@@ -46,16 +56,17 @@ const LazyVideo = ({
 
     if (wrapperRef.current) observer.observe(wrapperRef.current);
     return () => {
-      observer.disconnect();
+      try { observer.disconnect(); } catch (e) { /* ignore */ }
       if (observerTimeoutRef.current) {
         clearTimeout(observerTimeoutRef.current);
       }
     };
-  }, [threshold]);
+  }, [threshold, forceLoad]);
 
   useEffect(() => {
     const el = videoElRef.current;
     if (!el) return;
+    console.log('LazyVideo: video element present', { src, isInView, el });
 
     if (isInView) {
       if (shouldAutoplay) {
@@ -64,7 +75,7 @@ const LazyVideo = ({
           try {
             el.muted = true;
             const p = el.play();
-            if (p && p.then) p.catch(() => {});
+            if (p && p.then) p.then(() => console.log('LazyVideo: play started', { src })).catch((err) => console.warn('LazyVideo: play rejected', { src, err }));
           } catch (e) {
             // ignore
           }
@@ -107,20 +118,86 @@ const LazyVideo = ({
   }, [playSignal]);
 
   const handleLoadedData = () => {
+    const el = videoElRef.current;
+    console.log('LazyVideo: loaded data', { src, videoWidth: el?.videoWidth, videoHeight: el?.videoHeight });
     setIsLoaded(true);
     setHasError(false);
   };
 
   const handleError = () => {
+    const el = videoElRef.current;
+    console.error('LazyVideo: error loading', { src, el });
     setHasError(true);
     setIsLoaded(false);
   };
 
   const wrapperClass = `${className} ${fit === 'contain' ? 'bg-black' : ''}`;
 
+  // For mobile/touch devices or when forceLoad is true, always show the video
+  const shouldShow = forceLoad || isInView;
+
+  // Attempt to autoplay (muted). If the browser rejects autoplay, attach a one-time
+  // user gesture listener to unlock playback (touchstart / click) and retry.
+  const unlockRef = useRef(false);
+
+  const attemptPlay = async () => {
+    const el = videoElRef.current;
+    if (!el) return false;
+    try {
+      el.muted = true;
+      el.loop = true;
+      const p = el.play();
+      if (p && p.then) {
+        await p;
+      }
+      console.log('LazyVideo: autoplay succeeded', { src });
+      return true;
+    } catch (err) {
+      console.warn('LazyVideo: autoplay attempt rejected', { src, err });
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (!shouldShow) return;
+    if (!shouldAutoplay) return;
+
+    let removed = false;
+    const tryPlay = async () => {
+      const ok = await attemptPlay();
+      if (!ok && wrapperRef.current && !unlockRef.current) {
+        const unlock = async () => {
+          if (unlockRef.current) return;
+          unlockRef.current = true;
+          await attemptPlay();
+          try {
+            wrapperRef.current.removeEventListener('touchstart', unlock);
+            wrapperRef.current.removeEventListener('click', unlock);
+          } catch (e) {}
+          removed = true;
+        };
+
+        wrapperRef.current.addEventListener('touchstart', unlock, { once: true });
+        wrapperRef.current.addEventListener('click', unlock, { once: true });
+      }
+    };
+
+    // Try immediately
+    tryPlay();
+
+    return () => {
+      try {
+        if (wrapperRef.current && !removed) {
+          wrapperRef.current.removeEventListener('touchstart', () => {});
+          wrapperRef.current.removeEventListener('click', () => {});
+        }
+      } catch (e) {}
+    };
+  }, [shouldShow, shouldAutoplay]);
+
   return (
     <div ref={wrapperRef} className={wrapperClass}>
-      {isInView && (
+      {shouldShow && (
         <>
           {showLoader && !isLoaded && !hasError && (
             <div className={loaderClassName}>
@@ -139,17 +216,25 @@ const LazyVideo = ({
 
           <video
             ref={videoElRef}
-            className={`absolute top-0 left-0 w-full h-full ${fit === 'cover' ? 'object-cover' : 'object-contain'} object-center`}
+            className={`absolute top-0 left-0 w-full h-full block ${fit === 'cover' ? 'object-cover' : 'object-contain'} object-center`}
             src={src}
             preload={preload}
             onLoadedData={handleLoadedData}
+            onLoadedMetadata={handleLoadedData}
             onError={handleError}
             style={{
-              opacity: isLoaded ? 1 : 0,
-              transition: 'opacity 0.3s ease-in-out',
+              // Ensure video renders above overlays/backgrounds
+              opacity: 1,
+              transition: 'none',
+              zIndex: 50,
+              pointerEvents: 'auto',
+              minHeight: '300px',
+              minWidth: '200px'
             }}
             autoPlay={shouldAutoplay}
             muted={true}
+            // No controls - we'll fallback to user-gesture unlock if autoplay is blocked
+            controls={false}
             playsInline={true}
             {...props}
           />

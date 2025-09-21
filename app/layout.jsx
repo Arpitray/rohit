@@ -29,11 +29,11 @@ export default function RootLayout() {
 
             <About />
             <TextProject />
-            {/* Extended spacer div to provide scroll distance for horizontal NewProject scrolling - smaller on mobile */}
-            <div id="horizontal-scroll-trigger" className="h-[200vh] sm:h-[300vh] lg:h-[500vh] bg-transparent"></div>
+            {/* Spacer for horizontal NewProject scrolling - only on md+ screens to avoid extra mobile space */}
+            <div id="horizontal-scroll-trigger" className="hidden md:block md:h-[240vh] lg:h-[500vh] bg-transparent"></div>
             <NewProject />
-            {/* Spacer to ensure PersonalProject appears after horizontal scrolling completes */}
-            <div className="h-screen bg-transparent"></div>
+            {/* Spacer to ensure PersonalProject appears after horizontal scrolling completes - only on md+ screens */}
+            <div className="hidden md:block md:h-screen bg-transparent"></div>
             {/* Personal2 appears after horizontal scrolling completes */}
             <Personal2 />
           </div>
