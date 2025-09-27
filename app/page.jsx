@@ -299,7 +299,7 @@ export default function Home() {
         <video
           ref={videoRef}
           className="landing-bg-video absolute top-0 left-0 w-full h-full object-cover pointer-events-none"
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
+          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1758221382/Jackboys_2_travisscott_travisscott_travisscottedits_travisscottfans_jackboys_3danimatio_mwcf5t"
           autoPlay
           muted
           loop

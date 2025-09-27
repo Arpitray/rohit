@@ -29,18 +29,18 @@ const TemplateColumn = ({
   const videoWrapRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom);
-  // Detect touch support on client only to avoid SSR reference to `window`.
-  const [isTouch, setIsTouch] = useState(() => (typeof window !== 'undefined' && 'ontouchstart' in window));
+  // Initialize as false to match server render, detect touch after mount
+  const [isTouch, setIsTouch] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playCounter, setPlayCounter] = useState(0);
 
   useEffect(() => {
-    // Run only on client: detect touch-capable devices.
-    try {
-      setIsTouch(typeof window !== 'undefined' && 'ontouchstart' in window);
-    } catch (e) {
-      setIsTouch(false);
-    }
+    // Run only on client: detect touch-capable devices and mark as mounted.
+    if (typeof window === 'undefined') return;
+    const touchDetected = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 1024;
+    setIsTouch(!!touchDetected);
+    setMounted(true);
 
     const container = containerRef.current;
     if (!container) return;
@@ -99,7 +99,7 @@ const TemplateColumn = ({
         />
 
         {/* Poster overlay for touch devices (mobile). Use derived poster URL (fallback to src + .jpg) */}
-        {isTouch && !isPlaying && (
+        {mounted && isTouch && !isPlaying && (
           (() => {
             const posterUrl = src.includes('res.cloudinary.com') ? `${src}.jpg` : `${src}.jpg`;
             return (
