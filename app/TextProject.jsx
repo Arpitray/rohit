@@ -50,7 +50,7 @@ function TextProject() {
   return (
     <div
       ref={containerRef}
-      className='min-h-screen w-full flex items-center justify-center relative font-["techb"] z-30 bg-[#0b0b0b]'
+      className='h-[50vh] lg:h-screen w-full flex items-center justify-center relative font-["techb"] z-30 bg-[#0b0b0b]'
       style={{
         backgroundColor: 'rgba(10,10,10,1)',
         backdropFilter: 'blur(20px)',

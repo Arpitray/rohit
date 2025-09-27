@@ -22,8 +22,18 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   const [playCount, setPlayCount] = useState(0)
 
   useEffect(() => {
+<<<<<<< HEAD
     // Ensure detection runs on mount (no-op if already set)
     try { setIsTouchDevice(typeof window !== 'undefined' && 'ontouchstart' in window) } catch (e) {}
+=======
+    // Detect touch device - check multiple indicators
+    const touchDetected = typeof window !== 'undefined' && (
+      'ontouchstart' in window || 
+      navigator.maxTouchPoints > 0 || 
+      window.innerWidth < 1024
+    );
+    setIsTouchDevice(touchDetected);
+>>>>>>> f899db32237701171402a7676777ec76e4e7f045
   }, [])
 
   useEffect(() => {
@@ -100,6 +110,7 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   const posterUrl = src && src.includes('res.cloudinary.com') ? `${src}.jpg` : `${src}.jpg`
 
   return (
+<<<<<<< HEAD
     <div ref={containerRef} className="w-[90%] sm:w-[85%] md:w-[90%] h-[60%] sm:h-[70%] md:h-[90%] relative overflow-hidden rounded-lg shadow-lg cursor-pointer" data-interactive-video="true">
       <div
         ref={videoRef}
@@ -142,6 +153,45 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       </div>
 
       <div ref={overlayRef} className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 pointer-events-none z-10" />
+=======
+    <div 
+      ref={containerRef}
+      className="w-[90%] sm:w-[85%] md:w-[90%] h-[60%] sm:h-[70%] md:h-[90%] relative overflow-hidden rounded-lg shadow-lg cursor-pointer"
+      data-interactive-video="true"
+      style={{ minHeight: '300px' }}
+    >
+      <div
+        ref={videoRef}
+        style={{
+          transform: isTouchDevice 
+            ? 'scale(1.0)' 
+            : `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.05)`,
+          transition: isTouchDevice ? 'none' : 'transform 0.1s ease-out',
+          minHeight: '300px'
+        }}
+        className="w-full h-full"
+      >
+        <LazyVideo 
+          className="absolute inset-0 w-full h-full"
+          fit="cover"
+          src={src}
+          autoPlay={true}
+          muted
+          loop
+          playsInline
+          preload={isTouchDevice ? 'none' : 'metadata'}
+          // Always attempt autoplay (muted) and force mount on touch devices
+          shouldAutoplay={true}
+          forceLoad={isTouchDevice}
+        />
+      </div>
+      
+      {/* Dark overlay that appears on hover */}
+      <div 
+        ref={overlayRef}
+        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 pointer-events-none z-10"
+      />
+>>>>>>> f899db32237701171402a7676777ec76e4e7f045
 
       {showZoomButton && (
         <button
@@ -188,13 +238,6 @@ function NewProject() {
   }, [])
 
   useEffect(() => {
-    // For touch devices we still want the mobile appearance animation below.
-    // Previously we returned early here which prevented the mobile animation from initializing.
-    // Keep initial positioning for safety.
-    if (containerRef.current) {
-      gsap.set(containerRef.current, { y: '100vh', opacity: 1, x: 0 })
-    }
-
     const ctx = gsap.context(() => {
       const textProjectSection = document.querySelector('[data-section="textproject"]')
       const horizontalTrigger = document.querySelector('#horizontal-scroll-trigger')
@@ -207,13 +250,38 @@ function NewProject() {
       let isNewProjectVisible = false
 
       if (isMobile) {
-        // Mobile/Tablet: set up appearance animation but DO NOT skip horizontal setup
+        // Mobile/Tablet: Simple static positioning - no complex animations
+        gsap.set(containerRef.current, { 
+          y: 0,
+          opacity: 1,
+          x: 0,
+          position: 'relative'
+        })
+
+        // Simple trigger to show content after text project
+        ScrollTrigger.create({
+          trigger: textProjectSection,
+          start: 'bottom top',
+          end: 'bottom top',
+          onEnter: () => {
+            if (containerRef.current) {
+              gsap.set(containerRef.current, {
+                y: 0,
+                opacity: 1,
+                x: 0
+              })
+              isNewProjectVisible = true
+            }
+          }
+        })
+      } else {
+        // Desktop: original behavior (appearance animation)
         gsap.set(containerRef.current, { 
           y: '100vh',
           opacity: 1,
           x: 0
         })
-
+        
         ScrollTrigger.create({
           trigger: textProjectSection,
           start: 'top top',
@@ -232,100 +300,61 @@ function NewProject() {
                 overwrite: true
               })
 
-              // mark visible when fully appeared on mobile as well
               if (adjustedProgress >= 1 && !isNewProjectVisible) {
                 isNewProjectVisible = true
               }
+
+              if (projectsRef.current.length > 0) {
+                projectsRef.current.forEach((project, index) => {
+                  const delay = index * 0.15
+                  const cardProgress = Math.max(0, adjustedProgress - delay)
+                  const easedCardProgress = gsap.parseEase("power2.out")(cardProgress)
+                  
+                  gsap.to(project, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 1,
+                    overwrite: true
+                  })
+                })
+              }
             } else {
+              isNewProjectVisible = false
               gsap.to(containerRef.current, {
                 y: '100vh',
                 duration: 0.4,
                 overwrite: true
               })
-              isNewProjectVisible = false
             }
           }
         })
-        // continue to set up horizontal scroll below (no early return)
-      }
 
-      // Desktop: original behavior (appearance)
-      gsap.set(containerRef.current, { 
-        y: '100vh',
-        opacity: 1,
-        x: 0
-      })
-      ScrollTrigger.create({
-        trigger: textProjectSection,
-        start: 'top top',
-        end: '+=150vh',
-        scrub: 1,
-        invalidateOnRefresh: true,
-        markers: false,
-        onUpdate: (self) => {
-          if (self.progress >= 0.3) {
-            const adjustedProgress = (self.progress - 0.3) / 0.7
-            const easedProgress = gsap.parseEase("power2.out")(adjustedProgress)
-            
-            gsap.to(containerRef.current, {
-              y: `${100 - (easedProgress * 100)}vh`,
-              duration: 1,
-              overwrite: true
-            })
+        // Create horizontal scrolling effect using the spacer div as trigger
+        // ONLY on desktop - disable on mobile to prevent glitches and improve performance
+        ScrollTrigger.create({
+          trigger: horizontalTrigger,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1,
+          invalidateOnRefresh: true,
+          markers: false,
+          onUpdate: (self) => {
+            // Only do horizontal scrolling if NewProject is visible
+            if (isNewProjectVisible && containerRef.current) {
+              // Determine number of projects and translate accordingly
+              const numProjects = projectsRef.current.length || 6
+              const maxTranslateX = -100 * (numProjects - 1) // -100vw per shift
+              const translateX = self.progress * maxTranslateX
 
-            if (adjustedProgress >= 1 && !isNewProjectVisible) {
-              isNewProjectVisible = true
-            }
-
-            if (projectsRef.current.length > 0) {
-              projectsRef.current.forEach((project, index) => {
-                const delay = index * 0.15
-                const cardProgress = Math.max(0, adjustedProgress - delay)
-                const easedCardProgress = gsap.parseEase("power2.out")(cardProgress)
-                
-                gsap.to(project, {
-                  y: 0,
-                  opacity: 1,
-                  duration: 1,
-                  overwrite: true
-                })
+              gsap.to(containerRef.current, {
+                x: `${translateX}vw`,
+                duration: 0.1,
+                overwrite: "auto"
               })
             }
-          } else {
-            isNewProjectVisible = false
-            gsap.to(containerRef.current, {
-              y: '100vh',
-              duration: 0.4,
-              overwrite: true
-            })
           }
-        }
-      })
-
-      // Create horizontal scrolling effect using the spacer div as trigger
-      ScrollTrigger.create({
-        trigger: horizontalTrigger,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: 1,
-        invalidateOnRefresh: true,
-        markers: false,
-        onUpdate: (self) => {
-          // Only do horizontal scrolling if NewProject is visible
-          if (isNewProjectVisible && containerRef.current) {
-            // Determine number of projects and translate accordingly
-            const numProjects = projectsRef.current.length || 6
-            const maxTranslateX = -100 * (numProjects - 1) // -100vw per shift
-            const translateX = self.progress * maxTranslateX
-
-            gsap.to(containerRef.current, {
-              x: `${translateX}vw`,
-              duration: 0.1,
-              overwrite: "auto"
-            })
-          }
-        }
-      })
+        })
+      }
 
     }, containerRef)
 
@@ -346,11 +375,15 @@ function NewProject() {
   return (
     <div 
       ref={containerRef}
-      className={`fixed top-0 left-0 flex items-center z-50 textured-black-bg`}
-      style={{ transform: 'translateY(100vh)', width: `${TOTAL_PROJECTS * 100}vw`, height: '100vh' }}
+      className={`${isMobile ? 'relative flex flex-col overflow-y-auto' : 'fixed top-0 left-0 flex'} items-center z-50 textured-black-bg`}
+      style={{ 
+        transform: isMobile ? 'none' : 'translateY(100vh)', 
+        width: isMobile ? '100vw' : `${TOTAL_PROJECTS * 100}vw`, 
+        height: isMobile ? 'auto' : '100vh' 
+      }}
       data-section="newproject"
     >
-  <div ref={addToRefs} className={`project1 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project1 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://github.com/project1"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -386,7 +419,7 @@ function NewProject() {
           />
         </div>
       </div>
-  <div ref={addToRefs} className={`project2 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project2 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://github.com/project2"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -408,15 +441,16 @@ function NewProject() {
             zIndex: 0
           }}
         />
-        <InteractiveVideo 
-        
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776820/vid11_m3t9ob.mp4"
-          title="Project 2"
-          subtitle="Mobile App"
-          titleColor="text-white"
-        />
+        <div className="relative z-20 w-full h-full flex items-center justify-center">
+          <InteractiveVideo 
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776820/vid11_m3t9ob.mp4"
+            title="Project 2"
+            subtitle="Mobile App"
+            titleColor="text-white"
+          />
+        </div>
       </div>
-  <div ref={addToRefs} className={`project3 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project3 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project3"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -438,15 +472,17 @@ function NewProject() {
             zIndex: 0
           }}
         />
-        <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq"
-          title="Project 3"
-          subtitle="E-commerce"
-          titleColor="text-white"
-        />
+        <div className="relative z-20 w-full h-full flex items-center justify-center">
+          <InteractiveVideo 
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1757399056/bharudevidhome_eb3vtq.mp4"
+            title="Project 3"
+            subtitle="E-commerce"
+            titleColor="text-white"
+          />
+        </div>
         
       </div>
-  <div ref={addToRefs} className={`project4 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project4 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project4"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -468,14 +504,16 @@ function NewProject() {
             zIndex: 0
           }}
         />
-        <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776816/vid14_rvtcvi.mp4"
-          title="Project 4"
-          subtitle="UI/UX Design"
-          titleColor="text-white"
-        />
+        <div className="relative z-20 w-full h-full flex items-center justify-center">
+          <InteractiveVideo 
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776816/vid14_rvtcvi.mp4"
+            title="Project 4"
+            subtitle="UI/UX Design"
+            titleColor="text-white"
+          />
+        </div>
       </div>
-  <div ref={addToRefs} className={`project5 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project5 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project5"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -497,14 +535,16 @@ function NewProject() {
             zIndex: 0
           }}
         />
-        <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776816/vid10_zpxivm.mp4"
-          title="Project 5"
-          subtitle="Brand Identity"
-          titleColor="text-white"
-        />
+        <div className="relative z-20 w-full h-full flex items-center justify-center">
+          <InteractiveVideo 
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776816/vid10_zpxivm.mp4"
+            title="Project 5"
+            subtitle="Brand Identity"
+            titleColor="text-white"
+          />
+        </div>
       </div>
-  <div ref={addToRefs} className={`project6 w-[100vw] ${isMobile ? 'h-screen' : 'h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project6 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
            data-project-link="https://example.com/project6"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -526,12 +566,14 @@ function NewProject() {
             zIndex: 0
           }}
         />
-        <InteractiveVideo 
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776810/vid8_anmfk0.mp4"
-          title="Project 6"
-          subtitle="Digital Marketing"
-          titleColor="text-white"
-        />
+        <div className="relative z-20 w-full h-full flex items-center justify-center">
+          <InteractiveVideo 
+            src="https://res.cloudinary.com/dsjjdnife/video/upload/v1753776810/vid8_anmfk0.mp4"
+            title="Project 6"
+            subtitle="Digital Marketing"
+            titleColor="text-white"
+          />
+        </div>
       </div>
     </div>
   )
