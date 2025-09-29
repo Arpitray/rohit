@@ -326,7 +326,7 @@ export default function Home() {
     <div className="fixed top-0 left-0 w-screen h-screen overflow-hidden textured-black-bg z-0">
       <motion.div
         ref={containerRef}
-        className="relative w-[200vw] h-[150vh] will-change-transform"
+        className="relative w-[200vw] h-[150vh] will-change-transform overflow-x-hidden"
         style={{ x, y }}
         transition={{
           type: "spring",

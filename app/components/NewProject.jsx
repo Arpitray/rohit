@@ -18,6 +18,8 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   const [isHovered, setIsHovered] = useState(false)
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const [showVideoCover, setShowVideoCover] = useState(true)
+  const [videoPlaying, setVideoPlaying] = useState(false)
 
   useEffect(() => {
     // Detect touch device - check multiple indicators
@@ -28,6 +30,12 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
     );
     setIsTouchDevice(touchDetected);
   }, [])
+
+  // Handle play button click
+  const handlePlayClick = () => {
+    setShowVideoCover(false)
+    setVideoPlaying(true)
+  }
 
   useEffect(() => {
     const container = containerRef.current
@@ -180,15 +188,48 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
           className="absolute inset-0 w-full h-full"
           fit="cover"
           src={src}
-          autoPlay={true}
+          autoPlay={videoPlaying}
           muted
           loop
           playsInline
-          preload={isTouchDevice ? 'none' : 'metadata'}
-          // Always attempt autoplay (muted) and force mount on touch devices
-          shouldAutoplay={true}
-          forceLoad={isTouchDevice}
+          preload={showVideoCover ? 'none' : 'metadata'}
+          // Disable autoplay when cover is shown
+          shouldAutoplay={!showVideoCover && videoPlaying}
+          forceLoad={false}
         />
+
+        {/* Video Cover Overlay with Play Button */}
+        {showVideoCover && (
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-black/60 to-gray-800/80 flex items-center justify-center z-50 cursor-pointer backdrop-blur-sm"
+               onClick={handlePlayClick}>
+            
+            {/* Central Play Button */}
+            <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 sm:p-6 md:p-8 hover:bg-white/30 transition-all duration-300 transform hover:scale-110 shadow-2xl">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 relative">
+                {/* Play Triangle */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-0 h-0 border-l-[12px] sm:border-l-[18px] md:border-l-[24px] border-r-0 border-t-[6px] sm:border-t-[9px] md:border-t-[12px] border-b-[6px] sm:border-b-[9px] md:border-b-[12px] border-l-white border-t-transparent border-b-transparent ml-1 sm:ml-2"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Video title overlay on cover */}
+            <div className="absolute bottom-4 left-4 right-4 text-white">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1" 
+                  style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)' }}>
+                {title}
+              </h3>
+              {subtitle && (
+                <p className="text-sm sm:text-base opacity-90" 
+                   style={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)' }}>
+                  {subtitle}
+                </p>
+              )}
+            </div>
+
+          
+          </div>
+        )}
       </div>
       
       {/* Dark overlay that appears on hover */}
@@ -419,7 +460,7 @@ function NewProject() {
       }}
       data-section="newproject"
     >
-  <div ref={addToRefs} className={`project1 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project1 ${isMobile ? 'w-full min-h-[50vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-2' : 'p-8'}`}
            data-project-link="https://github.com/project1"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -455,7 +496,7 @@ function NewProject() {
           />
         </div>
       </div>
-  <div ref={addToRefs} className={`project2 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project2 ${isMobile ? 'w-full min-h-[50vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-2' : 'p-8'}`}
            data-project-link="https://github.com/project2"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -486,7 +527,7 @@ function NewProject() {
           />
         </div>
       </div>
-  <div ref={addToRefs} className={`project3 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project3 ${isMobile ? 'w-full min-h-[50vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-2' : 'p-8'}`}
            data-project-link="https://example.com/project3"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -518,7 +559,7 @@ function NewProject() {
         </div>
         
       </div>
-  <div ref={addToRefs} className={`project4 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project4 ${isMobile ? 'w-full min-h-[50vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-2' : 'p-8'}`}
            data-project-link="https://example.com/project4"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -549,7 +590,7 @@ function NewProject() {
           />
         </div>
       </div>
-  <div ref={addToRefs} className={`project5 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project5 ${isMobile ? 'w-full min-h-[50vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-2' : 'p-8'}`}
            data-project-link="https://example.com/project5"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
@@ -580,7 +621,7 @@ function NewProject() {
           />
         </div>
       </div>
-  <div ref={addToRefs} className={`project6 ${isMobile ? 'w-full min-h-[60vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-4' : 'p-8'}`}
+  <div ref={addToRefs} className={`project6 ${isMobile ? 'w-full min-h-[50vh]' : 'w-[100vw] h-full'} textured-black-bg flex items-center justify-center relative ${isMobile ? 'p-2' : 'p-8'}`}
            data-project-link="https://example.com/project6"
            style={{
              background: 'rgba(0, 0, 0, 0.35)',
