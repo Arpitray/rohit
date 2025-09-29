@@ -282,6 +282,46 @@ export default function Home() {
     return () => ctx.revert();
   }, []);
 
+  // Simple video pause/play on scroll to TextProject section
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    const checkTextProjectInView = () => {
+      const textProjectSection = document.querySelector('[data-section="textproject"]');
+      if (!textProjectSection) return;
+
+      const rect = textProjectSection.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Check if TextProject section is in view (partially or fully)
+      const isInView = rect.top < windowHeight && rect.bottom > 0;
+      
+      if (isInView) {
+        // Pause video when TextProject is in view
+        videoRef.current.pause();
+      } else {
+        // Resume video when not in view (back to landing page)
+        videoRef.current.play().catch(() => {
+          // Handle autoplay restrictions
+        });
+      }
+    };
+
+    // Check on scroll
+    const handleScroll = () => {
+      checkTextProjectInView();
+    };
+
+    // Initial check
+    checkTextProjectInView();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <div className="fixed top-0 left-0 w-screen h-screen overflow-hidden textured-black-bg z-0">
       <motion.div
