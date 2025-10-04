@@ -212,7 +212,13 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
                onClick={handlePlayClick}>
             
             {/* Central Play Button */}
-            <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 sm:p-6 md:p-8 hover:bg-white/30 transition-all duration-300 transform hover:scale-110 shadow-2xl">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); handlePlayClick(); }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); handlePlayClick(); } }}
+              className="bg-white/20 backdrop-blur-sm rounded-full p-4 sm:p-6 md:p-8 hover:bg-white/30 transition-all duration-300 transform hover:scale-110 shadow-2xl"
+            >
               <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 relative">
                 {/* Play Triangle */}
                 <div className="absolute inset-0 flex items-center justify-center">
