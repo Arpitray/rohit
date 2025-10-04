@@ -8,7 +8,7 @@ import LazyVideo from './LazyVideo'
 gsap.registerPlugin(ScrollTrigger)
 
 // Interactive Video Component with mouse movement effect
-function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white", defaultZoom = false, zoomScale = 1.8, showZoomButton = false }) {
+function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white", defaultZoom = false, zoomScale = 1.8, showZoomButton = false, repoLink = '' }) {
   const containerRef = useRef(null)
   const videoRef = useRef(null)
   const titleRef = useRef(null)
@@ -18,7 +18,9 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
   const [isHovered, setIsHovered] = useState(false)
   const [isZoomed, setIsZoomed] = useState(!!defaultZoom)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
-  const [showVideoCover, setShowVideoCover] = useState(true)
+  // showVideoCover will be enabled only for touch devices; we'll set it after detection
+  const [showVideoCover, setShowVideoCover] = useState(false)
+  // videoPlaying is used primarily for mobile user-initiated play; desktop autoplay is managed by LazyVideo's intersection observer
   const [videoPlaying, setVideoPlaying] = useState(false)
 
   useEffect(() => {
@@ -29,6 +31,10 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
       window.innerWidth < 1024
     );
     setIsTouchDevice(touchDetected);
+    // Only show cover UI on touch devices
+    setShowVideoCover(!!touchDetected);
+    // On desktop, allow autoplay behavior via LazyVideo (no manual play required)
+    if (!touchDetected) setVideoPlaying(true)
   }, [])
 
   // Handle play button click
@@ -188,18 +194,20 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
           className="absolute inset-0 w-full h-full"
           fit="cover"
           src={src}
+          // For desktop, videoPlaying will be true and LazyVideo will autoplay when in view.
+          // For mobile/touch, we keep videoPlaying false until user taps the poster.
           autoPlay={videoPlaying}
           muted
           loop
           playsInline
           preload={showVideoCover ? 'none' : 'metadata'}
-          // Disable autoplay when cover is shown
+          // shouldAutoplay: allow LazyVideo to attempt autoplay when there is no cover and videoPlaying is true
           shouldAutoplay={!showVideoCover && videoPlaying}
           forceLoad={false}
         />
 
         {/* Video Cover Overlay with Play Button */}
-        {showVideoCover && (
+        {isTouchDevice && showVideoCover && (
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-black/60 to-gray-800/80 flex items-center justify-center z-50 cursor-pointer backdrop-blur-sm"
                onClick={handlePlayClick}>
             
@@ -227,8 +235,34 @@ function InteractiveVideo({ src, title, subtitle = "", titleColor = "text-white"
               )}
             </div>
 
+            {/* Mobile-only repo button on the cover (prevents overlay click from playing) */}
+            {repoLink && (
+              <a
+                href={repoLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="absolute bottom-14 right-4 z-60 bg-black/90 text-white px-3 py-1 rounded-md text-sm md:hidden"
+              >
+                Visit
+              </a>
+            )}
+
           
           </div>
+        )}
+
+        {/* When video is playing on touch devices, show small repo button at bottom-right */}
+        {isTouchDevice && !showVideoCover && repoLink && (
+          <a
+            href={repoLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="absolute bottom-3 right-3 z-50 bg-black/90 text-white px-3 py-1 rounded-md text-sm md:hidden"
+          >
+            Visit
+          </a>
         )}
       </div>
       
@@ -493,6 +527,7 @@ function NewProject() {
             defaultZoom={true}
             zoomScale={1.7}
             showZoomButton={false}
+            repoLink="https://github.com/project1"
           />
         </div>
       </div>
@@ -524,6 +559,7 @@ function NewProject() {
             title="Project 2"
             subtitle="Mobile App"
             titleColor="text-white"
+            repoLink="https://github.com/project2"
           />
         </div>
       </div>
@@ -555,6 +591,7 @@ function NewProject() {
             title="Project 3"
             subtitle="E-commerce"
             titleColor="text-white"
+            repoLink="https://github.com/project3"
           />
         </div>
         
@@ -587,6 +624,7 @@ function NewProject() {
             title="Project 4"
             subtitle="UI/UX Design"
             titleColor="text-white"
+            repoLink="https://github.com/project4"
           />
         </div>
       </div>
@@ -618,6 +656,7 @@ function NewProject() {
             title="Project 5"
             subtitle="Brand Identity"
             titleColor="text-white"
+            repoLink="https://github.com/project5"
           />
         </div>
       </div>
@@ -649,6 +688,7 @@ function NewProject() {
             title="Project 6"
             subtitle="Digital Marketing"
             titleColor="text-white"
+            repoLink="https://github.com/project6"
           />
         </div>
       </div>
