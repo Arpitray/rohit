@@ -8,6 +8,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF, Center, Environment } from '@react-three/drei';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Loader from './components/Loader';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -112,7 +113,27 @@ function Model3D({ modelPath, position = [0, 0, 0], scale = [1, 1, 1], maxRotati
 // 3D Canvas component positioned at specific screen location
 
 // Raw Logo Model Component - Center of screen with specific camera settings
-function RawLogoModel({ modelRef }) {
+function RawLogoModel({ modelRef, onLoad }) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (isReady && onLoad) {
+      console.log('RawLogoModel ready, calling onLoad');
+      onLoad();
+    }
+  }, [isReady, onLoad]);
+
+  // Fallback timeout for model loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isReady) {
+        console.log('RawLogoModel timeout fallback');
+        setIsReady(true);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [isReady]);
+
   return (
     <div ref={modelRef} className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-grab w-[70vw] h-[150vw] sm:w-[400px] sm:h-[400px] md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] xl:w-[2000px] xl:h-[2000px]" 
          style={{ touchAction: 'none', zIndex: 1 }}>
@@ -124,6 +145,10 @@ function RawLogoModel({ modelRef }) {
           rotation: [0, 0, 0]     // Camera rotation
         }}
         dpr={[1, 1.5]}
+        onCreated={() => {
+          console.log('RawLogoModel Canvas created');
+          setIsReady(true);
+        }}
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1.2} />
@@ -142,7 +167,27 @@ function RawLogoModel({ modelRef }) {
 }
 
 // Music Model Component - Top left corner with specific camera settings
-function MusicModel({ modelRef }) {
+function MusicModel({ modelRef, onLoad }) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (isReady && onLoad) {
+      console.log('MusicModel ready, calling onLoad');
+      onLoad();
+    }
+  }, [isReady, onLoad]);
+
+  // Fallback timeout for model loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isReady) {
+        console.log('MusicModel timeout fallback');
+        setIsReady(true);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [isReady]);
+
   return (
   <div ref={modelRef} className="fixed z-[1] top-4 sm:top-8 left-4 sm:left-8 cursor-grab w-[150px] h-[150px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px]" 
      style={{ touchAction: 'none' }}>
@@ -154,6 +199,10 @@ function MusicModel({ modelRef }) {
           rotation: [0, 0, 0]      // No camera tilt - facing directly forward
         }}
         dpr={[1, 1.5]}
+        onCreated={() => {
+          console.log('MusicModel Canvas created');
+          setIsReady(true);
+        }}
       >
         <ambientLight intensity={0.6} />
         <directionalLight position={[0, 5, 5]} intensity={1.0} />
@@ -181,6 +230,52 @@ export default function Home() {
   const musicModelRef = useRef(null);
   const x = useMotionValue(0); // pixel translateX
   const y = useMotionValue(0); // pixel translateY
+  
+  // Loading state management
+  const [isLoading, setIsLoading] = useState(true);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [minLoadTime, setMinLoadTime] = useState(false);
+
+  // Track minimum load time (1 second) for smooth UX
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinLoadTime(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Fallback timeout - ensure loader disappears after max 4 seconds
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      console.log('Fallback timeout - forcing loader to disappear');
+      setIsLoading(false);
+    }, 4000);
+    return () => clearTimeout(fallbackTimer);
+  }, []);
+
+  // Check if all assets are loaded
+  useEffect(() => {
+    console.log('Loading state:', { videoLoaded, modelsLoaded, minLoadTime });
+    if (videoLoaded && modelsLoaded && minLoadTime) {
+      console.log('All assets loaded, hiding loader in 300ms');
+      // Add small delay for smooth transition
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+    }
+  }, [videoLoaded, modelsLoaded, minLoadTime]);
+
+  // Track when both 3D models are loaded
+  const modelsLoadedCountRef = useRef(0);
+  const handleModelLoad = () => {
+    modelsLoadedCountRef.current += 1;
+    console.log(`Model loaded: ${modelsLoadedCountRef.current}/2`);
+    if (modelsLoadedCountRef.current >= 2) {
+      console.log('All models loaded!');
+      setModelsLoaded(true);
+    }
+  };
   
   // (removed unused floating images and positioned model to simplify page and improve clarity)
 
@@ -323,7 +418,20 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen overflow-hidden textured-black-bg z-0">
+    <>
+      {/* Full-screen Loader - displayed until all assets are loaded */}
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center textured-black-bg">
+          <Loader />
+        </div>
+      )}
+
+      {/* Main Content - fade in when loading completes */}
+      <div 
+        className={`fixed top-0 left-0 w-screen h-screen overflow-hidden textured-black-bg z-0 transition-opacity duration-700 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
       <motion.div
         ref={containerRef}
         className="relative w-[200vw] h-[150vh] will-change-transform overflow-x-hidden"
@@ -339,12 +447,24 @@ export default function Home() {
         <video
           ref={videoRef}
           className="landing-bg-video absolute top-0 left-0 w-full h-full object-cover pointer-events-none"
-          src="https://res.cloudinary.com/dsjjdnife/video/upload/v1758221382/Jackboys_2_travisscott_travisscott_travisscottedits_travisscottfans_jackboys_3danimatio_mwcf5t"
+          src="https://res.cloudinary.com/dsjjdnife/video/upload/q_70,f_auto/v1758221382/Jackboys_2_travisscott_travisscott_travisscottedits_travisscottfans_jackboys_3danimatio_mwcf5t"
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
+          onLoadedData={() => {
+            console.log('Video loadedData event fired');
+            setVideoLoaded(true);
+          }}
+          onCanPlayThrough={() => {
+            console.log('Video canPlayThrough event fired');
+            setVideoLoaded(true);
+          }}
+          onError={(e) => {
+            console.log('Video error:', e);
+            setVideoLoaded(true); // Set to true anyway to not block loader
+          }}
           style={{ transform: 'scale(1)', transformOrigin: 'center' }}
         />
 
@@ -377,16 +497,17 @@ export default function Home() {
       {/* 3D Model Overlays - Each with separate camera configurations */}
       
       {/* Raw Logo Model - Center of screen with custom camera angle */}
-      <RawLogoModel modelRef={rawLogoRef} />
+      <RawLogoModel modelRef={rawLogoRef} onLoad={handleModelLoad} />
       
       {/* Music Model - Top left corner with different camera setup */}
-      <MusicModel modelRef={musicModelRef} />
+      <MusicModel modelRef={musicModelRef} onLoad={handleModelLoad} />
 
   {/* 3D model rendered inline so it scrolls with the page (moved inside motion container) */}
 
   {/* mouse cursor removed to avoid per-frame React updates */}
 
   {/* progress indicator removed per request */}
-    </div>
+      </div>
+    </>
   );
 }
